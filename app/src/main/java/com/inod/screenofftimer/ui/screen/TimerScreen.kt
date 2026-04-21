@@ -2,6 +2,7 @@ package com.inod.screenofftimer.ui.screen
 
 import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,32 +42,44 @@ import kotlinx.coroutines.delay
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.text.input.KeyboardType
 import com.inod.screenofftimer.MainActivity
+import com.inod.screenofftimer.ui.enums.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimersScreen(
     context: Context,
+    themeMode: ThemeMode,
     onOpenSettings: () -> Unit
 ) {
-    var totalTime by remember { mutableStateOf(10) }
-    var timeLeft by remember { mutableStateOf(10) }
-    var isRunning by remember { mutableStateOf(false) }
+//    var totalTime by remember { mutableStateOf(10) }
+//    var timeLeft by remember { mutableStateOf(10) }
+    var totalMinutes by remember { mutableIntStateOf(5) }
+    var timeLeftSeconds by remember { mutableIntStateOf(totalMinutes * 60) }
 
+    var isRunning by remember { mutableStateOf(false) }
+//    timeLeftSeconds = totalMinutes * 60
     // Timer logic
     LaunchedEffect(isRunning) {
         if (isRunning) {
-            while (timeLeft > 0) {
+            while (timeLeftSeconds > 0) {
+                timeLeftSeconds--
                 delay(1000)
-                timeLeft--
             }
             lockScreen(context)
             isRunning = false
         }
     }
+    val totalSeconds = totalMinutes * 60
+    val timeLeftTotal = timeLeftSeconds * totalMinutes
+    val progress = (timeLeftSeconds / totalSeconds.toFloat()).coerceIn(0f, 1f)
 
-    val progress = timeLeft / totalTime.toFloat()
+    val minutes = timeLeftSeconds / 60
+    val seconds = timeLeftSeconds % 60
 
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
@@ -73,10 +87,18 @@ fun TimersScreen(
     )
 
     val color = when {
-        timeLeft <= 3 -> Color.Red
-        timeLeft <= 6 -> Color(0xFFFFA500) // orange
+        timeLeftSeconds <= totalSeconds / 3 -> Color.Red
+        timeLeftSeconds <= totalSeconds / 2 -> Color(0xFFFFA500) // orange
         else -> Color(0xFF4CAF50) // green
     }
+
+    val isLightTheme = when (themeMode) {
+        ThemeMode.LIGHT -> true
+        ThemeMode.DARK -> false
+        ThemeMode.SYSTEM -> !isSystemInDarkTheme()
+    }
+
+    var customInput by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -89,10 +111,21 @@ fun TimersScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text("Screen Off Timer")
+                        Text(
+                            text = "Screen Off Timer",
+                            color = if (isLightTheme) {
+                                Color.White
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent
+                        containerColor = if (isLightTheme) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Transparent
+                        }
                     ),
                     actions = {
                         IconButton(
@@ -100,7 +133,12 @@ fun TimersScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings"
+                                contentDescription = "Settings",
+                                tint = if (isLightTheme) {
+                                    Color.White
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
                             )
                         }
                     }
@@ -142,8 +180,13 @@ fun TimersScreen(
                     strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
                     )
 
+//                    Text(
+//                        text = "$timeLeft",
+//                        color = color,
+//                        style = MaterialTheme.typography.displayLarge
+//                    )
                     Text(
-                        text = "$timeLeft",
+                        text = "%02d:%02d".format(minutes, seconds),
                         color = color,
                         style = MaterialTheme.typography.displayLarge
                     )
@@ -153,17 +196,52 @@ fun TimersScreen(
 
                 // Preset time
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf(5, 10, 15, 30).forEach { sec ->
+                    listOf(1, 5, 10, 15).forEach { min ->
+
+                        val isSelected = totalMinutes == min
+
                         OutlinedButton(
                             onClick = {
-                                totalTime = sec
-                                timeLeft = sec
+                                totalMinutes = min
+                                timeLeftSeconds = min * 60
                                 isRunning = false
-                            }
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Transparent,
+
+                                contentColor = if (isSelected)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            ),
+                            border = if (isSelected) null else ButtonDefaults.outlinedButtonBorder
                         ) {
-                            Text("$sec s")
+                            Text("$min min")
                         }
                     }
+                }
+
+                OutlinedTextField(
+                    value = customInput,
+                    onValueChange = { customInput = it },
+                    label = { Text("Custom (minutes)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Button(
+                    onClick = {
+                        val min = customInput.toIntOrNull()
+                        if (min != null && min > 0) {
+                            totalMinutes = min
+                            timeLeftSeconds = min * 60
+                            isRunning = false
+                        }
+                    }
+                ) {
+                    Text("Set")
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -173,7 +251,7 @@ fun TimersScreen(
 
                     Button(
                         onClick = {
-                            timeLeft = totalTime
+                            timeLeftSeconds = totalMinutes * 60
                             isRunning = true
                         },
                         colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50)),
@@ -193,7 +271,7 @@ fun TimersScreen(
                     TextButton(
                         onClick = {
                             isRunning = false
-                            timeLeft = totalTime
+                            timeLeftSeconds = totalMinutes * 60
                         }
                     ) {
                         Text("Reset")

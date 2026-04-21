@@ -2,6 +2,7 @@ package com.inod.screenofftimer.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +42,13 @@ fun SettingsScreen(
     onThemeChange: (ThemeMode) -> Unit,
     onBack: () -> Unit
 ) {
+
+    val isLightTheme = when (currentTheme) {
+        ThemeMode.LIGHT -> true
+        ThemeMode.DARK -> false
+        ThemeMode.SYSTEM -> !isSystemInDarkTheme()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -48,12 +57,33 @@ fun SettingsScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Settings") },
+                    title = {
+                        Text(
+                            text = "Screen Off Timer",
+                            color = if (isLightTheme) {
+                                Color.White
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = if (isLightTheme) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Transparent
+                        }
+                    ),
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = "Back",
+                                tint = if (isLightTheme) {
+                                    Color.White
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
                             )
                         }
                     }
@@ -78,6 +108,25 @@ fun SettingsScreen(
 }
 
 @Composable
+fun SettingMenu(
+    title: String,
+    mode: ThemeMode,
+    current: ThemeMode,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(title)
+    }
+}
+
+@Composable
 fun ThemeOption(
     title: String,
     mode: ThemeMode,
@@ -97,7 +146,7 @@ fun ThemeOption(
             onClick = { onSelect(mode) }
         )
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(2.dp))
 
         Text(title)
     }

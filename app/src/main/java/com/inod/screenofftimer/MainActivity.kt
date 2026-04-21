@@ -26,8 +26,6 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
 
-
-
             val isDark = when (themeMode) {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
@@ -68,6 +66,7 @@ class MainActivity : ComponentActivity() {
                     composable("timer") {
                         TimersScreen(
                             context = this@MainActivity,
+                            themeMode = themeMode,
                             onOpenSettings = {
                                 navController.navigate("settings")
                             }
