@@ -1,89 +1,35 @@
 package com.inod.screenofftimer
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.inod.screenofftimer.ui.enums.ThemeMode
-import com.inod.screenofftimer.ui.screen.SettingsScreen
-import com.inod.screenofftimer.ui.screen.TimersScreen
-import com.inod.screenofftimer.ui.theme.ScreenOffTimerTheme
+import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.inod.screenofftimer.core.permission.NotificationPermission
+import com.inod.screenofftimer.ui.navigation.AppNavGraph
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        NotificationPermission.request(this)
+        installSplashScreen()
+
+        val display = display
+        val supportedModes = display?.supportedModes
+        val highRefreshRateMode = supportedModes?.maxByOrNull { it.refreshRate }
+
+        val params = window.attributes
+        params.preferredDisplayModeId = highRefreshRateMode?.modeId ?: 0
+        window.attributes = params
+
+        enableEdgeToEdge()
+
         setContent {
-            val navController = rememberNavController()
-            var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
-
-            val isDark = when (themeMode) {
-                ThemeMode.DARK -> true
-                ThemeMode.LIGHT -> false
-                ThemeMode.SYSTEM -> isSystemInDarkTheme()
-            }
-
-            ScreenOffTimerTheme(darkTheme = isDark) {
-
-                NavHost(
-                    navController = navController,
-                    startDestination = "timer",
-                    enterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(300)
-                        )
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(300)
-                        )
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(300)
-                        )
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(
-                            AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(300)
-                        )
-                    }
-                ) {
-
-                    composable("timer") {
-                        TimersScreen(
-                            context = this@MainActivity,
-                            themeMode = themeMode,
-                            onOpenSettings = {
-                                navController.navigate("settings")
-                            }
-                        )
-                    }
-
-                    composable("settings") {
-                        SettingsScreen(
-                            currentTheme = themeMode,
-                            onThemeChange = { themeMode = it },
-                            onBack = {
-                                navController.popBackStack()
-                            }
-                        )
-                    }
-                }
-            }
+            AppNavGraph()
         }
     }
 }

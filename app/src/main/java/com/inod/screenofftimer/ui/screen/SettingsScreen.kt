@@ -1,5 +1,6 @@
 package com.inod.screenofftimer.ui.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,27 +10,34 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.inod.screenofftimer.ui.components.ListOption
 import com.inod.screenofftimer.ui.enums.ThemeMode
+import com.inod.screenofftimer.viewmodel.TimerViewModel
 
 
 class Settings {
@@ -43,15 +51,26 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
 
+    BackHandler {
+        onBack()
+    }
+
     val isLightTheme = when (currentTheme) {
         ThemeMode.LIGHT -> true
         ThemeMode.DARK -> false
         ThemeMode.SYSTEM -> !isSystemInDarkTheme()
     }
 
+    val options = listOf(
+        "Light" to ThemeMode.LIGHT,
+        "Dark" to ThemeMode.DARK,
+        "System" to ThemeMode.SYSTEM
+    )
+
     Box(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Scaffold(
@@ -59,46 +78,39 @@ fun SettingsScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Screen Off Timer",
-                            color = if (isLightTheme) {
-                                Color.White
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            }
+                            text = "Settings",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (isLightTheme) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            Color.Transparent
-                        }
+                        containerColor = Color.Transparent
                     ),
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = if (isLightTheme) {
-                                    Color.White
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                }
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 )
             }
         ) { padding ->
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                ThemeOption("Light", ThemeMode.LIGHT, currentTheme, onThemeChange)
-                ThemeOption("Dark", ThemeMode.DARK, currentTheme, onThemeChange)
-                ThemeOption("Follow System", ThemeMode.SYSTEM, currentTheme, onThemeChange)
+                ListOption(title = "Theme", titleIcon = Icons.Outlined.Palette) {
+                    options.forEach { (title, mode) ->
+                        ThemeOption(title, mode, currentTheme) {
+                            onThemeChange(it)
+
+                        }
+                    }
+                }
             }
         }
     }
@@ -133,21 +145,33 @@ fun ThemeOption(
     current: ThemeMode,
     onSelect: (ThemeMode) -> Unit
 ) {
+    val isSelected = current == mode
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { onSelect(mode) },
+            .clickable { onSelect(mode) }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         RadioButton(
-            selected = current == mode,
-            onClick = { onSelect(mode) }
+            selected = isSelected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.outline
+            )
         )
 
-        Spacer(modifier = Modifier.width(2.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
-        Text(title)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (isSelected)
+                MaterialTheme.colorScheme.onSurface
+            else
+                MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

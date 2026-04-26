@@ -14,7 +14,8 @@ android {
     defaultConfig {
         applicationId = "com.inod.screenofftimer"
         minSdk = 24
-        targetSdk = 36
+        //noinspection OldTargetApi
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -56,7 +57,12 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.ui.text)
-//    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3)
+//    implementation(libs.androidx.compose.material3.v121)
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.foundation.layout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -67,4 +73,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.navigation.compose.v280)
 }
