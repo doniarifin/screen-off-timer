@@ -38,6 +38,9 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     var isStopMedia by mutableStateOf(Prefs.isStopMedia(context))
         private set
 
+    var isGoHome by mutableStateOf(Prefs.isGoHome(context))
+        private set
+
     var leftSeconds by mutableIntStateOf(Prefs.getLeftSeconds(context))
         private set
 
@@ -58,7 +61,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         accessibility = value
         Prefs.saveAccessibility(context, value)
         //update lockscreen
-        updateLockScreen(value)
+        if (isLockScreen && accessibility) updateLockScreen(true) else updateLockScreen(false)
     }
 
     fun updateTheme(value: ThemeMode) {
@@ -74,6 +77,11 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     fun updateStopMedia(value: Boolean) {
         isStopMedia = value
         Prefs.saveStopMedia(context, value)
+    }
+
+    fun updateGoHome(value: Boolean) {
+        isGoHome = value
+        Prefs.saveGoHome(context, value)
     }
 
     fun updateLeftSeconds(value: Int) {

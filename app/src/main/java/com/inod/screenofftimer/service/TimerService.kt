@@ -278,6 +278,9 @@ class TimerService() : Service() {
         if (Prefs.isLockScreen(applicationContext)) {
             lockScreen(applicationContext)
         }
+        if (Prefs.isGoHome(applicationContext)) {
+            goHome(applicationContext)
+        }
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -297,5 +300,9 @@ class TimerService() : Service() {
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     fun stopMedia(context: Context) {
         MediaUtils().stopMedia(applicationContext)
+    }
+
+    fun goHome(context: Context) {
+        MediaUtils().goToHome(applicationContext)
     }
 }

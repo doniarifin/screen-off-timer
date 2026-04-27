@@ -1,6 +1,7 @@
 package com.inod.screenofftimer.core.utils
 
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -31,5 +32,16 @@ class MediaUtils () {
             )
         }
     }
+
+    fun goToHome(context: Context) {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
 }
+
+
+
 

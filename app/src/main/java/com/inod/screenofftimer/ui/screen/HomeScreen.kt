@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
@@ -78,9 +79,7 @@ import com.inod.screenofftimer.viewmodel.TimerViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    context: Context,
-    themeMode: ThemeMode,
-    onOpenSettings: () -> Unit
+    context: Context, themeMode: ThemeMode, onOpenSettings: () -> Unit
 ) {
 
     val viewModel: TimerViewModel = viewModel()
@@ -132,6 +131,15 @@ fun HomeScreen(
 
     var showEnableAccessibilityDialog by remember { mutableStateOf(false) }
 
+    val handleToggle: (Boolean) -> Unit = { value ->
+        viewModel.updateLockScreen(value)
+        if (value && !isAccessibilityEnabled(context)) {
+            showEnableAccessibilityDialog = true
+        } else {
+            viewModel.updateLockScreen(value)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -139,8 +147,7 @@ fun HomeScreen(
                 detectTapGestures(
                     onTap = {
                         focusManager.clearFocus()
-                    }
-                )
+                    })
             }
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center,
@@ -154,30 +161,25 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
+                    }, colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = if (isLightTheme) {
                             Color.Transparent
                         } else {
                             Color.Transparent
                         }
-                    ),
-                    actions = {
+                    ), actions = {
                         IconButton(
                             onClick = onOpenSettings
                         ) {
                             Icon(
-                                modifier = Modifier
-                                    .size(25.dp),
+                                modifier = Modifier.size(25.dp),
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = "Settings",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    }
-                )
-            }
-        ) { padding ->
+                    })
+            }) { padding ->
 
             Column(
                 modifier = Modifier
@@ -211,19 +213,14 @@ fun HomeScreen(
                     modifier = Modifier.size(80.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = if (isRunning)
-                            MaterialTheme.colorScheme.surfaceVariant
-                        else
-                            MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = if (isRunning)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = if (isRunning) MaterialTheme.colorScheme.surfaceVariant
+                        else MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = if (isRunning) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
                     AnimatedContent(
-                        targetState = isRunning,
-                        label = "icon_anim"
+                        targetState = isRunning, label = "icon_anim"
                     ) { running ->
                         Icon(
                             imageVector = if (running) Icons.Default.Stop else Icons.Default.PlayArrow,
@@ -233,10 +230,10 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 //options
-                ListSection(title = "Options", titleIcon = Icons.Default.Tune) {
+                ListSection() {
                     ListOption(
                         title = "Turn Off Music",
                         description = "All media will be turn off",
@@ -248,43 +245,27 @@ fun HomeScreen(
                         },
                         trailing = {
                             SwitchStyle(
-                                checked = isStopMedia,
-                                enabled = !isRunning,
-                                onCheckedChange = {
+                                checked = isStopMedia, enabled = !isRunning, onCheckedChange = {
                                     viewModel.updateStopMedia(it)
-                                }
-                            )
-                        }
-                    )
+                                })
+                        })
 
                     ListOption(
                         title = "Lock Screen",
-                        description = "The Phone will be lockscreen as normally lockscreen",
+                        description = "Automatically lock the device screen",
                         enabled = !isRunning,
-                        icon = Icons.Default.MusicOff,
+                        icon = Icons.Default.Lock,
                         contentIcon = "Media off",
                         onClick = {
-                            viewModel.updateLockScreen(!lockScreenEnabled)
+                            handleToggle(!lockScreenEnabled)
                         },
                         trailing = {
                             SwitchStyle(
                                 checked = lockScreenEnabled,
                                 enabled = !isRunning,
-                                onCheckedChange = { value ->
-                                    viewModel.updateLockScreen(value)
-                                    if (value) {
-                                        if (!isAccessibilityEnabled(context)) {
-                                            showEnableAccessibilityDialog = true
-                                        } else {
-                                            viewModel.updateLockScreen(true)
-                                        }
-                                    } else {
-                                        viewModel.updateLockScreen(false)
-                                    }
-                                }
+                                onCheckedChange = handleToggle
                             )
-                        }
-                    )
+                        })
                 }
             }
 
@@ -304,8 +285,7 @@ fun HomeScreen(
 
                     val enabled = isAccessibilityEnabled(context)
                     viewModel.updateAccessibility(enabled)
-                }
-            )
+                })
         }
     }
 }

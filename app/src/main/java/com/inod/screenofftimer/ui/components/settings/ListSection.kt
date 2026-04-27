@@ -2,6 +2,7 @@ package com.inod.screenofftimer.ui.components.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,11 +23,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ListSection(
     title: String? = null,
+    padding: PaddingValues? = PaddingValues(),
     titleIcon: ImageVector? = null,
     section: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(padding!!)
     ) {
         if (
             title != null

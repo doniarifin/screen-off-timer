@@ -4,4 +4,6 @@
     android:notificationTimeout="100"
     android:canRetrieveWindowContent="true"
     android:accessibilityFlags="flagReportViewIds"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:summary="Accessibility service"
+    />

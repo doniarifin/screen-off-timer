@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.inod.screenofftimer.ui.components.settings.LicenseScreen
 import com.inod.screenofftimer.ui.enums.ThemeMode
 import com.inod.screenofftimer.ui.screen.HomeScreen
 import com.inod.screenofftimer.ui.screen.SettingsScreen
@@ -95,7 +96,14 @@ fun AppNavGraph() {
                         onBack = {
                             navController.popBackStack()
 
-                        }
+                        },
+                        onOpenLicenses = { navController.navigate("licenses") }
+                    )
+                }
+
+                composable("licenses") {
+                    LicenseScreen(
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }

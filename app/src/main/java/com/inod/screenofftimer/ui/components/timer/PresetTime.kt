@@ -39,8 +39,8 @@ fun PresetTime() {
 
         FlowRow(
             modifier = Modifier.wrapContentWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
             maxItemsInEachRow = 2
         ) {
             listOf(5, 10, 30, 45).forEach { min ->
@@ -52,7 +52,7 @@ fun PresetTime() {
                     modifier = Modifier
                         .width(140.dp)
                         .height(60.dp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = MaterialTheme.shapes.large,
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = if (isSelected)
                             MaterialTheme.colorScheme.primaryContainer
@@ -63,7 +63,7 @@ fun PresetTime() {
                         else
                             MaterialTheme.colorScheme.onSurface
                     ),
-                    contentPadding = PaddingValues(16.dp)
+                    contentPadding = PaddingValues(10.dp)
                 ) {
                     Text(
                         text = "$min",

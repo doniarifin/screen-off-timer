@@ -1,4 +1,5 @@
 [versions]
+aboutlibrariesCompose = "14.0.1"
 agp = "9.1.1"
 coreKtx = "1.18.0"
 coreSplashscreen = "1.2.0"
@@ -24,6 +25,7 @@ uiGraphics = "1.11.0"
 foundationLayoutVersion = "1.11.0"
 
 [libraries]
+aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutlibrariesCompose" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-material3-v121 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

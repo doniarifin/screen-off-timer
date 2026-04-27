@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 android {
@@ -76,4 +77,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.compose.v280)
+
+    implementation(libs.aboutlibraries.compose)
 }

@@ -14,6 +14,8 @@ object Prefs {
     private const val KEY_THEME = "theme_mode"
     private const val KEY_LOCK_SCREEN = "lock_screen"
     private const val KEY_STOP_MEDIA = "stop_media"
+
+    private const val KEY_GO_HOME = "is_go_home"
     private const val KEY_ACCESSIBILITY = "accessibility"
 
     object Keys {
@@ -116,5 +118,14 @@ object Prefs {
 
     fun isStopMedia(context: Context): Boolean {
         return prefs(context).getBoolean(KEY_STOP_MEDIA, false)
+    }
+
+    //go_home
+    fun saveGoHome(context: Context, value: Boolean) {
+        prefs(context).edit { putBoolean(KEY_GO_HOME, value) }
+    }
+
+    fun isGoHome(context: Context): Boolean {
+        return prefs(context).getBoolean(KEY_GO_HOME, false)
     }
 }
