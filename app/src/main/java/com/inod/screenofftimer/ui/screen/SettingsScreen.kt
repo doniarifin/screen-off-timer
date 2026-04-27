@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -27,17 +26,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.inod.screenofftimer.ui.components.ListOption
+import com.inod.screenofftimer.ui.components.settings.HorizontalChooser
+import com.inod.screenofftimer.ui.components.settings.ListOption
+import com.inod.screenofftimer.ui.components.settings.ListSection
 import com.inod.screenofftimer.ui.enums.ThemeMode
-import com.inod.screenofftimer.viewmodel.TimerViewModel
 
 
 class Settings {
@@ -101,77 +98,26 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                ListOption(title = "Theme", titleIcon = Icons.Outlined.Palette) {
-                    options.forEach { (title, mode) ->
-                        ThemeOption(title, mode, currentTheme) {
-                            onThemeChange(it)
-
+                ListSection(title = "Theme", titleIcon = Icons.Outlined.Palette) {
+                    ListOption(
+                        onClick = {},
+                        bgColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        bottomContent = {
+                            HorizontalChooser(
+                                options = options.map { it.first },
+                                selectedIndex = options.indexOfFirst { it.second == currentTheme },
+                                onSelect = { index ->
+                                    onThemeChange(options[index].second)
+                                }
+                            )
                         }
-                    }
+                    )
+
                 }
             }
         }
-    }
-
-
-
-}
-
-@Composable
-fun SettingMenu(
-    title: String,
-    mode: ThemeMode,
-    current: ThemeMode,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(title)
-    }
-}
-
-@Composable
-fun ThemeOption(
-    title: String,
-    mode: ThemeMode,
-    current: ThemeMode,
-    onSelect: (ThemeMode) -> Unit
-) {
-    val isSelected = current == mode
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onSelect(mode) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.outline
-            )
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (isSelected)
-                MaterialTheme.colorScheme.onSurface
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }

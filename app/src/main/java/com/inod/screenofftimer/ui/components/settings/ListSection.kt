@@ -1,6 +1,5 @@
-package com.inod.screenofftimer.ui.components
+package com.inod.screenofftimer.ui.components.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,10 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ListOption(
+fun ListSection(
     title: String? = null,
     titleIcon: ImageVector? = null,
-    content: @Composable () -> Unit
+    section: @Composable () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -61,11 +58,10 @@ fun ListOption(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
-            verticalArrangement = Arrangement.spacedBy(1.dp)
+                .clip(MaterialTheme.shapes.large),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            content()
+            section()
         }
     }
 }

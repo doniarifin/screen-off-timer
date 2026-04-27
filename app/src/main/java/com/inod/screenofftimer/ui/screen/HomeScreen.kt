@@ -26,8 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.PlayArrow
@@ -42,7 +40,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -67,8 +64,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inod.screenofftimer.service.MediaControlAccessibilityService
-import com.inod.screenofftimer.ui.components.ListOption
+import com.inod.screenofftimer.ui.components.settings.ListOption
 import com.inod.screenofftimer.ui.components.ModalDialog
+import com.inod.screenofftimer.ui.components.SwitchStyle
+import com.inod.screenofftimer.ui.components.settings.ListSection
 import com.inod.screenofftimer.ui.components.timer.PresetTime
 import com.inod.screenofftimer.ui.components.timer.TimerProgress
 import com.inod.screenofftimer.ui.enums.ThemeMode
@@ -237,37 +236,53 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 //options
-                ListOption(title = "Options", titleIcon = Icons.Default.Tune) {
-                    SwitchSettingItem(
+                ListSection(title = "Options", titleIcon = Icons.Default.Tune) {
+                    ListOption(
                         title = "Turn Off Music",
-                        checked = isStopMedia,
+                        description = "All media will be turn off",
                         enabled = !isRunning,
                         icon = Icons.Default.MusicOff,
-                        contentIcon = "Music Off",
-                        description = "All Media will be turn off",
-                        onToggle = { newValue ->
-                            viewModel.updateStopMedia(newValue)
+                        contentIcon = "Media off",
+                        onClick = {
+                            viewModel.updateStopMedia(!isStopMedia)
+                        },
+                        trailing = {
+                            SwitchStyle(
+                                checked = isStopMedia,
+                                enabled = !isRunning,
+                                onCheckedChange = {
+                                    viewModel.updateStopMedia(it)
+                                }
+                            )
                         }
                     )
 
-                    SwitchSettingItem(
+                    ListOption(
                         title = "Lock Screen",
-                        checked = lockScreenEnabled,
-                        enabled = !isRunning,
-                        icon = Icons.Default.Lock,
-                        contentIcon = "Lockscreen",
                         description = "The Phone will be lockscreen as normally lockscreen",
-                        onToggle = { newValue ->
-                            viewModel.updateLockScreen(newValue)
-                            if (newValue) {
-                                if (!isAccessibilityEnabled(context)) {
-                                    showEnableAccessibilityDialog = true
-                                } else {
-                                    viewModel.updateLockScreen(true)
+                        enabled = !isRunning,
+                        icon = Icons.Default.MusicOff,
+                        contentIcon = "Media off",
+                        onClick = {
+                            viewModel.updateLockScreen(!lockScreenEnabled)
+                        },
+                        trailing = {
+                            SwitchStyle(
+                                checked = lockScreenEnabled,
+                                enabled = !isRunning,
+                                onCheckedChange = { value ->
+                                    viewModel.updateLockScreen(value)
+                                    if (value) {
+                                        if (!isAccessibilityEnabled(context)) {
+                                            showEnableAccessibilityDialog = true
+                                        } else {
+                                            viewModel.updateLockScreen(true)
+                                        }
+                                    } else {
+                                        viewModel.updateLockScreen(false)
+                                    }
                                 }
-                            } else {
-                                viewModel.updateLockScreen(false)
-                            }
+                            )
                         }
                     )
                 }
@@ -292,75 +307,6 @@ fun HomeScreen(
                 }
             )
         }
-    }
-}
-
-@Composable
-fun SwitchSettingItem(
-    title: String,
-    description: String,
-    checked: Boolean,
-    enabled: Boolean,
-    icon: ImageVector,
-    contentIcon: String,
-    onToggle: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                enabled = enabled,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onToggle(!checked) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Icon(
-            imageVector = icon,
-            contentDescription = contentIcon,
-            modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-        }
-
-        Switch(
-            checked = checked,
-            enabled = enabled,
-            onCheckedChange = { onToggle(it) },
-            thumbContent = {
-                if (checked) {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(SwitchDefaults.IconSize)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = null,
-                        modifier = Modifier.size(SwitchDefaults.IconSize)
-                    )
-                }
-            }
-        )
     }
 }
 
