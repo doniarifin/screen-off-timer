@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,7 +36,7 @@ fun HorizontalSelected(
             .padding(horizontal = 1.dp, vertical = 1.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        options.forEachIndexed { index, text ->
+        options.forEachIndexed { index, _ ->
             val selected = index == selectedIndex
 
             Box(
@@ -71,7 +70,7 @@ fun HorizontalSelected(
                             tint = if (selected)
                                 MaterialTheme.colorScheme.onPrimaryContainer
                             else
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                                MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 

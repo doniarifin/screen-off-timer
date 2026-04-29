@@ -13,9 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -26,16 +23,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun TimerProgress() {
+fun TimerProgress(viewModel: TimerViewModel) {
 
-    val viewModel: TimerViewModel = viewModel()
+//    val viewModel: TimerViewModel = viewModel()
 
     val isRunning by viewModel.getRunning.collectAsState()
     val timeLeftSeconds = viewModel.leftSeconds
@@ -53,7 +49,7 @@ fun TimerProgress() {
     val strokeWidthPx = with(density) { strokeWidthDp.toPx() }
     val radiusPx = (sizePx - strokeWidthPx) / 2f
 
-    val primaryColor = MaterialTheme.colorScheme.primary
+//    val primaryColor = MaterialTheme.colorScheme.primary
     val thumbColor = if (isRunning)
         MaterialTheme.colorScheme.outline
     else

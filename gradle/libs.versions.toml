@@ -12,22 +12,25 @@ activityCompose = "1.13.0"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 foundationLayout = "1.10.6"
+material = "1.13.0"
 material3 = "1.4.0"
-material3Version = "1.2.1"
+#material3Version = "1.2.1"
 navigationComposeVersion = "2.8.0"
 runtime = "1.10.6"
 navigationCompose = "2.9.7"
 uiText = "1.10.6"
-firebaseCrashlyticsBuildtools = "3.0.6"
-compiler = "3.2.0-alpha11"
+#firebaseCrashlyticsBuildtools = "3.0.6"
+#compiler = "3.2.0-alpha11"
 foundation = "1.11.0"
 uiGraphics = "1.11.0"
 foundationLayoutVersion = "1.11.0"
+ui = "1.11.0"
+animationCore = "1.11.0"
 
 [libraries]
 aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutlibrariesCompose" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-androidx-compose-material3-v121 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
+#androidx-compose-material3-v121 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
@@ -50,11 +53,14 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
-firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
-androidx-compiler = { group = "androidx.databinding", name = "compiler", version.ref = "compiler" }
+#firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+#androidx-compiler = { group = "androidx.databinding", name = "compiler", version.ref = "compiler" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayoutVersion" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -20,11 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ScreenOffTimer"
         android:enableOnBackInvokedCallback="true"
+        android:forceDarkAllowed="false"
         tools:targetApi="33">
         <activity
             android:name=".MainActivity"
+            android:forceDarkAllowed="false"
             android:theme="@style/Theme.ScreenOffTimer.SplashScreen"
-            android:exported="true">
+            android:configChanges="locale|layoutDirection"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -18,7 +18,7 @@ android {
         //noinspection OldTargetApi
         targetSdk = 35
         versionCode = 1
-        versionName = "1.1.2"
+        versionName = "1.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,6 +30,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -60,10 +61,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.material3)
 //    implementation(libs.androidx.compose.material3.v121)
-    implementation(libs.firebase.crashlytics.buildtools)
+//    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.compose.animation.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -79,4 +82,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose.v280)
 
     implementation(libs.aboutlibraries.compose)
+    implementation(libs.material)
 }

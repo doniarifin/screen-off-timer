@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -22,16 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 
 @Composable
-fun PresetTime() {
+fun PresetTime(viewModel: TimerViewModel) {
     Box(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        val viewModel: TimerViewModel = viewModel()
+//        val viewModel: TimerViewModel = viewModel()
 
         val isRunning by viewModel.getRunning.collectAsState()
         val timeLeftSeconds = viewModel.leftSeconds
