@@ -11,8 +11,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -26,34 +28,32 @@ import androidx.compose.ui.unit.sp
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 @Composable
 fun TimerProgress(viewModel: TimerViewModel) {
 
-//    val viewModel: TimerViewModel = viewModel()
-
-    val isRunning by viewModel.getRunning.collectAsState()
+    val isRunning = viewModel.isRunning
     val timeLeftSeconds = viewModel.leftSeconds
 
     val oneHour = 60 * 60
 
-    var progress = (timeLeftSeconds / oneHour.toFloat()).coerceIn(0f, 1f)
+    val baseProgress = (timeLeftSeconds / oneHour.toFloat()).coerceIn(0f, 1f)
+
+    var dragProgress by remember { mutableFloatStateOf(-1f) }
+
+    val displayProgress = if (dragProgress >= 0f) dragProgress else baseProgress
+
     val sizeDp = 300.dp
     val density = LocalDensity.current
-//    val sizePx = with(density) { sizeDp.toPx() }.toInt()
 
     val strokeWidthDp = 12.dp
-
     val sizePx = with(density) { sizeDp.toPx() }.toInt()
     val strokeWidthPx = with(density) { strokeWidthDp.toPx() }
     val radiusPx = (sizePx - strokeWidthPx) / 2f
 
-//    val primaryColor = MaterialTheme.colorScheme.primary
-    val thumbColor = if (isRunning)
-        MaterialTheme.colorScheme.outline
-    else
-        MaterialTheme.colorScheme.primary
+    val thumbColor = if (isRunning) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
 
     Box(
@@ -61,14 +61,28 @@ fun TimerProgress(viewModel: TimerViewModel) {
         modifier = Modifier
             .size(sizeDp)
             .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    if (isRunning) return@detectDragGestures
-                    val newProgress = calculateProgress(change.position, sizePx)
-                    progress = newProgress
+                detectDragGestures(
+                    onDragEnd = {
+                        if (!isRunning && dragProgress >= 0f) {
+                            val totalMinutes = (dragProgress * 60).roundToInt()
 
-                    // update_timer
-                    val totalSeconds = (newProgress * 60).toInt()
-                    viewModel.setTimer(totalSeconds)
+                            val finalMinutes = totalMinutes.coerceAtLeast(1)
+
+                            viewModel.setTimer(finalMinutes)
+                            dragProgress = -1f
+                        }
+                    },
+                    onDragCancel = {
+                        dragProgress = -1f
+                    }
+                ) { change, _ ->
+                    if (isRunning) return@detectDragGestures
+
+                    val rawProgress = calculateProgress(change.position, sizePx)
+
+                    val snappedMinutes = (rawProgress * 60).roundToInt()
+
+                    dragProgress = snappedMinutes / 60f
 
                     change.consume()
                 }
@@ -83,18 +97,18 @@ fun TimerProgress(viewModel: TimerViewModel) {
         )
 
         CircularProgressIndicator(
-            progress = { progress },
+            progress = { displayProgress },
             modifier = Modifier.size(sizeDp),
             color = MaterialTheme.colorScheme.primary,
             strokeWidth = 12.dp,
             strokeCap = StrokeCap.Round,
         )
 
-        //thumb
+        // thumb
         Canvas(
             modifier = Modifier.size(sizeDp)
         ) {
-            val angleRad = (progress * 2 * Math.PI) - (Math.PI / 2)
+            val angleRad = (displayProgress * 2 * Math.PI) - (Math.PI / 2)
 
             val thumbX = center.x + radiusPx * cos(angleRad).toFloat()
             val thumbY = center.y + radiusPx * sin(angleRad).toFloat()
@@ -103,7 +117,7 @@ fun TimerProgress(viewModel: TimerViewModel) {
                 color = thumbColor,
                 radius = strokeWidthPx * 1.5f,
                 center = Offset(thumbX, thumbY),
-                        alpha = if (isRunning) 0.5f else 1f
+                alpha = if (isRunning) 0.5f else 1f
             )
 
             drawCircle(
@@ -119,11 +133,10 @@ fun TimerProgress(viewModel: TimerViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-
             Text(
                 text = "%02d:%02d".format(
-                    (progress * 60).toInt(),
-                    ((progress * 3600) % 60).toInt()
+                    (displayProgress * 60).toInt(),
+                    ((displayProgress * 3600) % 60).toInt()
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.displayLarge.copy(
@@ -142,6 +155,7 @@ fun TimerProgress(viewModel: TimerViewModel) {
         }
     }
 }
+
 fun calculateProgress(offset: Offset, size: Int): Float {
     val centerX = size / 2f
     val centerY = size / 2f

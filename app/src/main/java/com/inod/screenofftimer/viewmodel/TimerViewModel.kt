@@ -43,6 +43,8 @@ class TimerViewModel(
         private set
     var leftSeconds by mutableIntStateOf(state.get<Int>("left_seconds") ?: 300)
         private set
+    var startedSeconds by mutableIntStateOf(state.get<Int>("started_seconds") ?: 300)
+        private set
     var minutes by mutableIntStateOf(state.get<Int>("minutes") ?: 0)
         private set
     var accessibility by mutableStateOf(state.get<Boolean>("accessibility") ?: false)
@@ -79,6 +81,13 @@ class TimerViewModel(
             isRunning
         )
 
+    val getLeftSeconds = Prefs.leftSecondsFlow(context)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            leftSeconds
+        )
+
     init {
         loadInitialSettings()
     }
@@ -91,6 +100,7 @@ class TimerViewModel(
                 theme = state.get<ThemeMode>("theme") ?: settings.theme
                 isRunning = state.get<Boolean>("is_running") ?: settings.isRunning
                 leftSeconds = state.get<Int>("left_seconds") ?: settings.leftSeconds
+                startedSeconds = state.get<Int>("started_seconds") ?: settings.startedSeconds
                 minutes = settings.minutes
                 accessibility = settings.accessibility
                 isLockScreen = settings.isLockScreen
@@ -120,6 +130,12 @@ class TimerViewModel(
         leftSeconds = value
         state["left_seconds"] = value
         Prefs.saveLeftSeconds(context, value)
+    }
+
+    fun updateStartedSeconds(value: Int) {
+        startedSeconds = value
+        state["started_seconds"] = value
+        Prefs.saveStartedSeconds(context, value)
     }
 
     fun updateMinutes(value: Int) {
@@ -213,11 +229,13 @@ class TimerViewModel(
         }
         ContextCompat.startForegroundService(context, intent)
         updateRunning(true)
+        updateStartedSeconds(totalSeconds)
     }
 
     fun setTimer(min: Int) {
         updateMinutes(min)
         updateLeftSeconds(min * 60)
+        updateStartedSeconds(min * 60)
         updateTimer(application, min)
     }
 

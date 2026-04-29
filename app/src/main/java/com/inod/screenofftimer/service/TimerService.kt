@@ -27,6 +27,7 @@ import kotlinx.coroutines.isActive
 class TimerService() : Service() {
 
     companion object {
+        var isServiceRunning = false
         const val ACTION_STOP = "ACTION_STOP"
         const val ACTION_UPDATE = "ACTION_UPDATE"
         const val ACTION_START = "ACTION_START"
@@ -39,14 +40,16 @@ class TimerService() : Service() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate() {
         super.onCreate()
+        isServiceRunning = true
         notification.defaultNotification(this, 0)
         startForeground(1, notification.defaultNotification(this, 0))
     }
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+//    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
 
@@ -72,11 +75,19 @@ class TimerService() : Service() {
                 saveEndTime(endTime)
                 saveRemainingTime(0)
 
-                startForeground(
-                    1,
-                    notification.defaultNotification(this, finalDuration),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, finalDuration),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    )
+                } else {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, finalDuration),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                    )
+                }
 
                 startTimer()
 
@@ -97,11 +108,19 @@ class TimerService() : Service() {
                 saveRemainingTime(remaining)
                 Prefs.saveLeftSeconds(applicationContext, remaining)
 
-                startForeground(
-                    1,
-                    notification.defaultNotification(this, remaining),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, remaining),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    )
+                } else {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, remaining),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                    )
+                }
 
                 return START_STICKY
             }
@@ -120,11 +139,19 @@ class TimerService() : Service() {
                 saveRemainingTime(remaining)
                 Prefs.saveLeftSeconds(applicationContext, remaining)
 
-                startForeground(
-                    1,
-                    notification.defaultNotification(this, remaining),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, remaining),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    )
+                } else {
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, remaining),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                    )
+                }
 
                 return START_STICKY
             }
@@ -133,7 +160,7 @@ class TimerService() : Service() {
                 val newDuration = intent.getIntExtra("time", 0)
                 val newEndTime = System.currentTimeMillis() + (newDuration * 1000L)
 
-                Log.d("UPDATE", "SECONDS: $newDuration")
+//                Log.d("UPDATE", "SECONDS: $newDuration")
 
                 saveEndTime(newEndTime)
                 saveRemainingTime(newDuration)
@@ -164,8 +191,8 @@ class TimerService() : Service() {
         return START_STICKY
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     private fun startTimer() {
         scope.coroutineContext.cancelChildren()
 
@@ -178,16 +205,22 @@ class TimerService() : Service() {
                 if (remaining <= 0) break
 
                 updateNotification(remaining)
+                Prefs.saveLeftSeconds(applicationContext, remaining)
                 sendUpdate(remaining)
 
-                delay(1000)
+                delay(1050)
             }
 
+            val startedSeconds = Prefs.getStartedSeconds(application)
+
             updateNotification(0)
+            //broadcast also update left_seconds in prefs
+            sendUpdate(startedSeconds)
 
-            sendUpdate(0)
-
+            //update is_running
             Prefs.saveRunning(applicationContext, false)
+//            Prefs.saveLeftSeconds(applicationContext, 300)
+
             saveEndTime(0)
             saveRemainingTime(0)
 
@@ -210,24 +243,33 @@ class TimerService() : Service() {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun updateNotification(time: Int) {
         notification.defaultNotificationCompat(this, time)
-        Prefs.saveLeftSeconds(applicationContext, time)
+
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        Log.d("IS_RUNNING", "STOP DI SINI")
+//        Log.d("IS_RUNNING", "On destroy")
+        isServiceRunning = false
 
-        scope.launch {
-            Prefs.saveRunning(applicationContext, false)
-            delay(50)
-            super.onDestroy()
-        }
-        scope.cancel()
+        Prefs.saveRunning(applicationContext, false)
+
+          scope.cancel()
+
+          super.onDestroy()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        super.onTimeout(startId, fgsType)
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf(startId)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        isServiceRunning = false
 
         val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
         val accessibility = Prefs.isAccessibility(applicationContext)
@@ -258,7 +300,7 @@ class TimerService() : Service() {
     }
 
     private fun sendUpdate(seconds: Int) {
-        Log.d("TIMER_SVC", "SEND: $seconds")
+//        Log.d("TIMER_SVC", "SEND: $seconds")
         val intent = Intent("TIMER_TICK").apply {
             setPackage(packageName)
             putExtra("time_left", seconds)
@@ -266,12 +308,8 @@ class TimerService() : Service() {
         sendBroadcast(intent)
     }
 
-    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun onTimerFinished() {
-
-        Prefs.saveRunning(applicationContext, false)
-        Prefs.saveLeftSeconds(applicationContext, 0)
-
         if (Prefs.isStopMedia(applicationContext)) {
             stopMedia(applicationContext)
         }
@@ -297,7 +335,6 @@ class TimerService() : Service() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     fun stopMedia(context: Context) {
         MediaUtils().stopMedia(applicationContext)
     }

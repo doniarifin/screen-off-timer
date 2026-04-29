@@ -21,6 +21,8 @@ object Prefs {
     private const val KEY_NOTIF_PERMISSION = "notif_permission"
     private const val KEY_NO_SHOW_ASK_NOTIF = "no_show_ask_notif"
     private const val KEY_LEFT_SECONDS = "left_seconds"
+    private const val KEY_STARTED_SECONDS = "started_seconds"
+
     private const val KEY_MINUTES = "minutes"
     private const val KEY_IS_RUNNING = "is_running"
 
@@ -35,7 +37,8 @@ object Prefs {
         val isGoHome: Boolean = false,
         val isDynamicColor: Boolean = false,
         val isNotifPermission: Boolean = false,
-        val isNoShowNotif: Boolean = false
+        val isNoShowNotif: Boolean = false,
+        val startedSeconds: Int = 300,
     )
 
     private fun prefs(context: Context) =
@@ -52,6 +55,7 @@ object Prefs {
             },
             isRunning = all[KEY_IS_RUNNING] as? Boolean ?: false,
             leftSeconds = all[KEY_LEFT_SECONDS] as? Int ?: 300,
+            startedSeconds = all[KEY_STARTED_SECONDS] as? Int ?: 300,
             minutes = all[KEY_MINUTES] as? Int ?: 0,
             accessibility = all[KEY_ACCESSIBILITY] as? Boolean ?: false,
             isLockScreen = all[KEY_LOCK_SCREEN] as? Boolean ?: false,
@@ -86,6 +90,12 @@ object Prefs {
 
     fun getLeftSeconds(context: Context): Int = prefs(context).getInt(KEY_LEFT_SECONDS, 300)
 
+    fun saveStartedSeconds(context: Context, seconds: Int) {
+        prefs(context).edit { putInt(KEY_STARTED_SECONDS, seconds) }
+    }
+
+    fun getStartedSeconds(context: Context): Int = prefs(context).getInt(KEY_STARTED_SECONDS, 300)
+
     fun saveMinutes(context: Context, minutes: Int) {
         prefs(context).edit { putInt(KEY_MINUTES, minutes) }
     }
@@ -104,6 +114,18 @@ object Prefs {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
             if (key == KEY_IS_RUNNING) {
                 trySend(p.getBoolean(KEY_IS_RUNNING, false))
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
+
+    fun leftSecondsFlow(context: Context): Flow<Int> = callbackFlow {
+        val prefs = prefs(context)
+        trySend(prefs.getInt(KEY_LEFT_SECONDS, 0))
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
+            if (key == KEY_LEFT_SECONDS) {
+                trySend(p.getInt(KEY_LEFT_SECONDS, 0))
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)

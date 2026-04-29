@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -123,26 +124,29 @@ fun HomeScreen(
     }
 
     val handleNotifStart: () -> Unit = let@{
-        val isNotifGranted = isNotifGranted(activity)
-        val notShowAsk = viewModel.isNoShowNotifPermission
-
-        val shouldShowDialog = !notShowAsk && !isNotifGranted
-
-        if (shouldShowDialog) {
-            showNotifPermissionDialog = true
+        if (isRunning) {
+            viewModel.stop(timeLeftSeconds)
             return@let
         }
 
-        if (isRunning) {
-            viewModel.stop(timeLeftSeconds)
-        } else {
-            viewModel.startTimer(timeLeftSeconds)
+        viewModel.startTimer(timeLeftSeconds)
+
+        val isNotifGranted = isNotifGranted(activity)
+        val notShowAsk = viewModel.isNoShowNotifPermission
+
+        if (!isNotifGranted) {
+            if (!notShowAsk) {
+                showNotifPermissionDialog = true
+            } else {
+                showToastProperly(context)
+            }
         }
     }
 
     val handleNotShowAgain: () -> Unit = {
         viewModel.updateNoShowNotifPermission(true)
         showNotifPermissionDialog = false
+        showToastProperly(context)
     }
 
     Scaffold(
@@ -271,6 +275,9 @@ fun HomeScreen(
             },
             onDismiss = {
                 showNotifPermissionDialog = false
+                if (!isNotifGranted(activity)) {
+                    showToastProperly(context)
+                }
             },
             leftButton = "Don't show again",
             onLeftButton = { handleNotShowAgain() },
@@ -305,4 +312,12 @@ fun openNotifSetting(activity: Activity) {
 
 fun isNotifGranted(activity: Activity): Boolean {
     return NotificationPermission.isGranted(activity)
+}
+
+private fun showToastProperly(context: Context) {
+    Toast.makeText(
+        context,
+        "Please enable notifications for the timer to run properly.",
+        Toast.LENGTH_LONG
+    ).show()
 }

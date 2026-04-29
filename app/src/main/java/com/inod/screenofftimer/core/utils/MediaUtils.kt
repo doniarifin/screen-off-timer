@@ -2,35 +2,18 @@ package com.inod.screenofftimer.core.utils
 
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.os.Build
+import android.view.KeyEvent
 
 class MediaUtils () {
     fun stopMedia(context: Context) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                .setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                .setOnAudioFocusChangeListener {}
-                .build()
+        val downEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE)
+        audioManager.dispatchMediaKeyEvent(downEvent)
 
-            audioManager.requestAudioFocus(focusRequest)
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.requestAudioFocus(
-                {},
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-            )
-        }
+        val upEvent = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PAUSE)
+        audioManager.dispatchMediaKeyEvent(upEvent)
     }
 
     fun goToHome(context: Context) {

@@ -17,12 +17,6 @@ fun App() {
 
     val settings by viewModel.allSettings.collectAsState()
 
-//    val isDark = when (settings.theme) {
-//        ThemeMode.DARK -> true
-//        ThemeMode.LIGHT -> false
-//        ThemeMode.SYSTEM -> isSystemInDarkTheme()
-//    }
-
     ScreenOffTimerTheme(
         themeMode = settings.theme,
         useDynamicColor = settings.isDynamicColor
