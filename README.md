@@ -3,11 +3,11 @@ Android application designed to automatically turn off your screen or pause medi
 
 ## Screenshots
 
-[dark_home](./screenshot/ss_dark_home.png)
-[dark_setting](./screenshot/ss_dark_setting.png)
+![dark_home](./screenshot/ss_dark_home.png) &nbsp
+![dark_setting](./screenshot/ss_dark_setting.png)
 
-[light_home](./screenshot/ss_light_home.png)
-[light_setting](./screenshot/ss_light_setting.png)
+![light_home](./screenshot/ss_light_home.png) &nbsp
+![light_setting](./screenshot/ss_light_setting.png)
 
 ### Key Features
 - Precision Timer: Easily set your desired countdown using a modern picker or slider.
