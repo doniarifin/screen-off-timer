@@ -17,8 +17,8 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.1.5"
+        versionCode = 2
+        versionName = "1.1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,7 +61,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.material3)
 //    implementation(libs.androidx.compose.material3.v121)
-//    implementation(libs.firebase.crashlytics.buildtools)
+//    implementation(libs.firebase.crashlytics.2buildtools)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.foundation.layout)
