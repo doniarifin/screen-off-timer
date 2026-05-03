@@ -1,0 +1,1 @@
+Clean sleep timer to stop media and lock screen.

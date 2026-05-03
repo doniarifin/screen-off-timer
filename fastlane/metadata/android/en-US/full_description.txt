@@ -1,0 +1,9 @@
+ScreenOffTimer is a sleep timer for Android. No ads, just a simple, modern tool to help you wind down and protect your device's battery. life.
+
+Features:
+- Media Stop: Automatically stops music and media playback when the timer ends.
+- Auto Lock Screen: Safely locks your device's screen once the countdown reaches zero.
+- Return to Home: Automatically navigates back to the home screen for a clean state.
+- Dark Theme Support: Seamlessly adapts to your system's theme for comfortable night-time use.
+- Accessibility: This app requires the Accessibility Service permission solely to perform the Lock Screen action.
+- Data Integrity: We do not collect, store, or transmit any personal data or usage information through the Accessibility Service.
