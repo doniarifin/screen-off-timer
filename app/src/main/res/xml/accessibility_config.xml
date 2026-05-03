@@ -1,9 +1,10 @@
-<accessibility-service
-    android:accessibilityEventTypes="typeAllMask"
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:notificationTimeout="100"
-    android:canRetrieveWindowContent="true"
-    android:accessibilityFlags="flagReportViewIds"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:summary="Accessibility service"
-    />
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:canRequestFilterKeyEvents="false"
+    android:notificationTimeout="0"
+    android:packageNames="com.inod.screenofftimer"
+    android:summary="@string/accessibility_summary"
+    android:description="@string/accessibility_description" />
