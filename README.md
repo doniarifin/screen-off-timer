@@ -2,12 +2,13 @@
 Android application designed to automatically turn off your screen or pause media playback after a set duration. 
 
 ## Screenshots
+### Dark theme
 
-![dark_home](./screenshot/ss_dark_home.png) &nbsp
-![dark_setting](./screenshot/ss_dark_setting.png)
+<img src="./screenshot/ss_dark_home.png" width="240"> <img src="./screenshot/ss_dark_setting.png" width="240">
 
-![light_home](./screenshot/ss_light_home.png) &nbsp
-![light_setting](./screenshot/ss_light_setting.png)
+### Light theme
+
+<img src="./screenshot/ss_light_home.png" width="240"> <img src="./screenshot/ss_light_setting.png" width="240">
 
 ### Key Features
 - Precision Timer: Easily set your desired countdown using a modern picker or slider.
