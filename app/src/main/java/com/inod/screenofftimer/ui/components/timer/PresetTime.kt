@@ -26,7 +26,9 @@ import com.inod.screenofftimer.viewmodel.TimerViewModel
 @Composable
 fun PresetTime(viewModel: TimerViewModel) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
 //        val viewModel: TimerViewModel = viewModel()
@@ -45,7 +47,10 @@ fun PresetTime(viewModel: TimerViewModel) {
                 val isSelected = totalMinutes == min
 
                 FilledTonalButton(
-                    onClick = { viewModel.setTimer(min) },
+                    onClick = {
+                        viewModel.setTimer(min)
+                        viewModel.saveLastDrag(min)
+                    },
                     enabled = !isRunning,
                     modifier = Modifier
                         .width(140.dp)

@@ -1,9 +1,15 @@
 package com.inod.screenofftimer.ui.screen
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.util.Log
+import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -51,6 +57,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.inod.screenofftimer.core.permission.NotificationPermission
 import com.inod.screenofftimer.service.MediaControlAccessibilityService
+import com.inod.screenofftimer.service.MyDeviceAdminReceiver
 import com.inod.screenofftimer.ui.components.ModalDialog
 import com.inod.screenofftimer.ui.components.SwitchStyle
 import com.inod.screenofftimer.ui.components.settings.ListOption
@@ -65,7 +72,7 @@ import com.inod.screenofftimer.viewmodel.TimerViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    context: Context,  viewModel: TimerViewModel, onOpenSettings: () -> Unit
+    context: Context, viewModel: TimerViewModel, onOpenSettings: () -> Unit
 ) {
 
     val activity = context as Activity
@@ -90,9 +97,9 @@ fun HomeScreen(
                 val enabled = isAccessibilityEnabled(context)
                 viewModel.updateAccessibility(enabled)
 
-//                if (viewModel.accessibility != enabled) {
-//                    viewModel.updateAccessibility(enabled)
-//                }
+                val dpmActive = isDpmActive(context)
+                viewModel.updateDeviceAdmin(dpmActive)
+
 
                 val granted = isNotifGranted(activity)
                 if (viewModel.isNotifPermission != granted) {
@@ -113,15 +120,12 @@ fun HomeScreen(
     var showEnableAccessibilityDialog by remember { mutableStateOf(false) }
     var showNotifPermissionDialog by remember { mutableStateOf(false) }
 
-    val handleToggleLockscreen: (Boolean) -> Unit = { value ->
-        viewModel.updateLockScreen(value)
-        if (value && !isAccessibilityEnabled(context)) {
-            showEnableAccessibilityDialog = true
-        }
-//        else {
-//            viewModel.updateLockScreen(value)
+//    val handleToggleLockscreen: (Boolean) -> Unit = { value ->
+//        viewModel.updateLockScreen(value)
+//        if (value && !isAccessibilityEnabled(context)) {
+//            showEnableAccessibilityDialog = true
 //        }
-    }
+//    }
 
     val handleNotifStart: () -> Unit = let@{
         if (isRunning) {
@@ -147,6 +151,23 @@ fun HomeScreen(
         viewModel.updateNoShowNotifPermission(true)
         showNotifPermissionDialog = false
         showToastProperly(context)
+    }
+
+    var showLockMethodDialog by remember { mutableStateOf(false) }
+
+    val handleToggleLockscreen: (Boolean) -> Unit = { value ->
+        viewModel.updateLockScreen(value)
+        if (value) {
+            val dpmActive = isDpmActive(context)
+            val accessibilityActive = isAccessibilityEnabled(context)
+
+            when {
+                dpmActive || accessibilityActive -> { /* sudah ada metode aktif, skip */
+                }
+
+                else -> showLockMethodDialog = true // tampil pilihan
+            }
+        }
     }
 
     Scaffold(
@@ -282,15 +303,35 @@ fun HomeScreen(
             leftButton = "Don't show again",
             onLeftButton = { handleNotShowAgain() },
         )
+
+
+        ModalDialog(
+            onDismiss = { showLockMethodDialog = false },
+            title = "Choose Lock Method",
+            description = "Select how the screen should be locked automatically.",
+            leftButton = "Accessibility Service",
+            dismissText = "Cancel",
+            onLeftButton = {
+                showLockMethodDialog = false
+                openAccessibilitySettings(context)
+            },
+            confirmText = "Admin",
+            onConfirm = {
+                showLockMethodDialog = false
+                openDeviceAdminSettings(context)
+            },
+            show = showLockMethodDialog
+        )
+
     }
 }
 
 fun isAccessibilityEnabled(context: Context): Boolean {
     val am =
-        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
     val enabledServices = am.getEnabledAccessibilityServiceList(
-        android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
+        AccessibilityServiceInfo.FEEDBACK_ALL_MASK
     )
 
     return enabledServices.any {
@@ -320,4 +361,46 @@ private fun showToastProperly(context: Context) {
         "Please enable notifications for the timer to run properly.",
         Toast.LENGTH_LONG
     ).show()
+}
+
+@SuppressLint("ServiceCast")
+fun isDpmActive(context: Context): Boolean {
+    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
+    return dpm.isAdminActive(component)
+}
+
+fun requestDeviceAdmin(context: Context) {
+    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
+    Log.d("DeviceAdmin", "component: ${component.flattenToString()}")
+    Log.d("DeviceAdmin", "starting intent...")
+
+    val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+        putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
+        putExtra(
+            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+            "Required to lock screen automatically"
+        )
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    context.startActivity(intent)
+}
+
+fun openDeviceAdminSettings(context: Context) {
+    val intent = Intent().apply {
+        component = ComponentName(
+            "com.android.settings",
+            "com.android.settings.DeviceAdminSettings"
+        )
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // fallback ke security settings if not found
+        val fallback = Intent(Settings.ACTION_SECURITY_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(fallback)
+    }
 }

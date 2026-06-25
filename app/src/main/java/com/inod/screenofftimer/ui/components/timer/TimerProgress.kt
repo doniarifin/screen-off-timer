@@ -69,6 +69,7 @@ fun TimerProgress(viewModel: TimerViewModel) {
                             val finalMinutes = totalMinutes.coerceAtLeast(1)
 
                             viewModel.setTimer(finalMinutes)
+                            viewModel.saveLastDrag(finalMinutes)
                             dragProgress = -1f
                         }
                     },

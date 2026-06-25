@@ -18,10 +18,13 @@ object Prefs {
     private const val KEY_GO_HOME = "is_go_home"
     private const val KEY_DYNAMIC_COLOR = "is_dynamic_color"
     private const val KEY_ACCESSIBILITY = "accessibility"
+    private const val KEY_DEVICE_ADMIN = "device_admin"
+
     private const val KEY_NOTIF_PERMISSION = "notif_permission"
     private const val KEY_NO_SHOW_ASK_NOTIF = "no_show_ask_notif"
     private const val KEY_LEFT_SECONDS = "left_seconds"
     private const val KEY_STARTED_SECONDS = "started_seconds"
+    private const val KEY_LAST_DRAG = "last_drag"
 
     private const val KEY_MINUTES = "minutes"
     private const val KEY_IS_RUNNING = "is_running"
@@ -32,6 +35,7 @@ object Prefs {
         val leftSeconds: Int = 300,
         val minutes: Int = 0,
         val accessibility: Boolean = false,
+        val deviceAdmin: Boolean = false,
         val isLockScreen: Boolean = false,
         val isStopMedia: Boolean = false,
         val isGoHome: Boolean = false,
@@ -39,6 +43,7 @@ object Prefs {
         val isNotifPermission: Boolean = false,
         val isNoShowNotif: Boolean = false,
         val startedSeconds: Int = 300,
+        val lastDrag: Int = 300,
     )
 
     private fun prefs(context: Context) =
@@ -56,8 +61,10 @@ object Prefs {
             isRunning = all[KEY_IS_RUNNING] as? Boolean ?: false,
             leftSeconds = all[KEY_LEFT_SECONDS] as? Int ?: 300,
             startedSeconds = all[KEY_STARTED_SECONDS] as? Int ?: 300,
+            lastDrag = all[KEY_LAST_DRAG] as? Int ?: 300,
             minutes = all[KEY_MINUTES] as? Int ?: 0,
             accessibility = all[KEY_ACCESSIBILITY] as? Boolean ?: false,
+            deviceAdmin = all[KEY_DEVICE_ADMIN] as? Boolean ?: false,
             isLockScreen = all[KEY_LOCK_SCREEN] as? Boolean ?: false,
             isStopMedia = all[KEY_STOP_MEDIA] as? Boolean ?: false,
             isGoHome = all[KEY_GO_HOME] as? Boolean ?: false,
@@ -94,7 +101,13 @@ object Prefs {
         prefs(context).edit { putInt(KEY_STARTED_SECONDS, seconds) }
     }
 
+    fun saveLastDrag(context: Context, seconds: Int) {
+        prefs(context).edit { putInt(KEY_LAST_DRAG, seconds) }
+    }
+
     fun getStartedSeconds(context: Context): Int = prefs(context).getInt(KEY_STARTED_SECONDS, 300)
+
+    fun getLastDrag(context: Context): Int = prefs(context).getInt(KEY_LAST_DRAG, 300)
 
     fun saveMinutes(context: Context, minutes: Int) {
         prefs(context).edit { putInt(KEY_MINUTES, minutes) }
@@ -151,6 +164,13 @@ object Prefs {
 
     fun isAccessibility(context: Context): Boolean =
         prefs(context).getBoolean(KEY_ACCESSIBILITY, false)
+
+    fun saveDeviceAdmin(context: Context, value: Boolean) {
+        prefs(context).edit { putBoolean(KEY_DEVICE_ADMIN, value) }
+    }
+
+    fun isDeviceAdmin(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_DEVICE_ADMIN, false)
 
     fun saveLockScreen(context: Context, value: Boolean) {
         prefs(context).edit { putBoolean(KEY_LOCK_SCREEN, value) }
