@@ -49,6 +49,8 @@ class TimerViewModel(
         private set
     var accessibility by mutableStateOf(state.get<Boolean>("accessibility") ?: false)
         private set
+    var deviceAdmin by mutableStateOf(state.get<Boolean>("device_admin") ?: false)
+        private set
     var isLockScreen by mutableStateOf(state.get<Boolean>("is_lock_screen") ?: false)
         private set
     var isStopMedia by mutableStateOf(state.get<Boolean>("is_stop_media") ?: false)
@@ -148,7 +150,14 @@ class TimerViewModel(
         accessibility = value
         state["accessibility"] = value
         Prefs.saveAccessibility(context, value)
-        if (isLockScreen && accessibility) updateLockScreen(true) else updateLockScreen(false)
+        updateLockScreen(isLockScreen && (accessibility || deviceAdmin))
+    }
+
+    fun updateDeviceAdmin(value: Boolean) {
+        deviceAdmin = value
+        state["device_admin"] = value
+        Prefs.saveDeviceAdmin(context, value)
+        updateLockScreen(isLockScreen && (accessibility || deviceAdmin))
     }
 
     fun updateLockScreen(value: Boolean) {
@@ -239,6 +248,9 @@ class TimerViewModel(
         updateTimer(application, min)
     }
 
+    fun saveLastDrag(minutes: Int) {
+        Prefs.saveLastDrag(getApplication(), minutes * 60)
+    }
     fun updateTimer(context: Context, minutes: Int) {
         val intent = Intent(context, TimerService::class.java).apply {
             putExtra("time", minutes * 60)

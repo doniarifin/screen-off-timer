@@ -2,7 +2,10 @@ package com.inod.screenofftimer.service
 
 //noinspection SuspiciousImport
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Service
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -53,6 +56,28 @@ class TimerService() : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
 
+            null -> {
+
+                val endTime = getEndTime()
+                val remaining = ((endTime - System.currentTimeMillis()) / 1000).toInt()
+
+                if (remaining > 0) {
+                    isServiceRunning = true
+                    Prefs.saveRunning(applicationContext, true)
+
+                    startForeground(
+                        1,
+                        notification.defaultNotification(this, remaining),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                    )
+                    startTimer()
+                } else {
+                    Prefs.saveRunning(applicationContext, false)
+                    stopSelf()
+                }
+                return START_STICKY
+            }
+
             ACTION_START -> {
                 val duration = intent.getIntExtra("time", -1) ?: -1
                 val savedRemaining = getRemainingTime()
@@ -79,13 +104,13 @@ class TimerService() : Service() {
                     startForeground(
                         1,
                         notification.defaultNotification(this, finalDuration),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 } else {
                     startForeground(
                         1,
                         notification.defaultNotification(this, finalDuration),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 }
 
@@ -112,13 +137,13 @@ class TimerService() : Service() {
                     startForeground(
                         1,
                         notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 } else {
                     startForeground(
                         1,
                         notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 }
 
@@ -143,13 +168,13 @@ class TimerService() : Service() {
                     startForeground(
                         1,
                         notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 } else {
                     startForeground(
                         1,
                         notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                     )
                 }
 
@@ -211,11 +236,11 @@ class TimerService() : Service() {
                 delay(1050)
             }
 
-            val startedSeconds = Prefs.getStartedSeconds(application)
+            val lastDrag = Prefs.getLastDrag(application)
 
             updateNotification(0)
             //broadcast also update left_seconds in prefs
-            sendUpdate(startedSeconds)
+            sendUpdate(lastDrag)
 
             //update is_running
             Prefs.saveRunning(applicationContext, false)
@@ -269,21 +294,29 @@ class TimerService() : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        isServiceRunning = false
+//        isServiceRunning = false
+
+//        val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
+//        val accessibility = Prefs.isAccessibility(applicationContext)
 
         val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
-        val accessibility = Prefs.isAccessibility(applicationContext)
-
-        if (remaining > 0) {
-            if (!accessibility) Prefs.saveRunning(applicationContext, false)
-        } else {
+        if (remaining <= 0) {
             scope.launch {
                 Prefs.saveRunning(applicationContext, false)
                 delay(50)
                 stopSelf()
             }
-
         }
+//        if (remaining > 0) {
+//            if (!accessibility) Prefs.saveRunning(applicationContext, false)
+//        } else {
+//            scope.launch {
+//                Prefs.saveRunning(applicationContext, false)
+//                delay(50)
+//                stopSelf()
+//            }
+//
+//        }
     }
 
     private fun saveEndTime(time: Long) {
@@ -324,14 +357,23 @@ class TimerService() : Service() {
         stopSelf()
     }
 
+    @SuppressLint("ServiceCast")
     @RequiresApi(Build.VERSION_CODES.P)
     fun lockScreen(context: Context) {
-        val service = MediaControlAccessibilityService.instance
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE)
+                as DevicePolicyManager
+        val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
 
-        if (service != null) {
-            service.lockScreenNow()
-        } else {
-            Log.d("Media", "Accessibility not active")
+        when {
+            dpm.isAdminActive(component) -> {
+                dpm.lockNow() // Device Admin
+            }
+            MediaControlAccessibilityService.instance != null -> {
+                MediaControlAccessibilityService.instance?.lockScreenNow() // Accessibility
+            }
+            else -> {
+                // skip
+            }
         }
     }
 

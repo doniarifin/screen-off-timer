@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Accessibility
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Code
@@ -210,6 +211,19 @@ fun SettingsScreen(
                             SwitchStyle(
                                 checked = settings.accessibility,
                                 onCheckedChange = { openAccessibility(context) }
+                            )
+                        }
+                    )
+
+                    ListOption(
+                        onClick = { openDeviceAdminSettings(context) },
+                        title = "Device Admin",
+                        description = "Lock screen via device admin permission. Disable this before uninstalling the app.",
+                        icon = Icons.Default.AdminPanelSettings,
+                        trailing = {
+                            SwitchStyle(
+                                checked = settings.deviceAdmin,
+                                onCheckedChange = { openDeviceAdminSettings(context) }
                             )
                         }
                     )

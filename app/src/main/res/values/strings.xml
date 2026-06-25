@@ -3,4 +3,7 @@
     <string name="accessibility_summary">Automated screen lock service.</string>
     <string name="accessibility_description">This permission is strictly required for the automated screen lock feature when the timer expires.
         This service runs locally and does not collect, store, or monitor any personal data or screen activity.</string>
+    <string name="device_admin_description">
+        Required to automatically lock the screen when the sleep timer ends.
+    </string>
 </resources>
