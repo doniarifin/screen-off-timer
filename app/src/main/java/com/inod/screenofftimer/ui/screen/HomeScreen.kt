@@ -262,24 +262,25 @@ fun HomeScreen(
         }
 
         //modal dialog access
-        ModalDialog(
-            show = showEnableAccessibilityDialog,
-            title = "Accessibility Required",
-            description = "Accessibility Service permission is required for the automated screen lock feature. \n" +
-                    "\n" +
-                    "* This service operates locally on your device and does not collect, store, or share any personal information.",
-            confirmText = "Agree",
-            dismissText = "Cancel",
-            onConfirm = {
-                showEnableAccessibilityDialog = false
-                openAccessibilitySettings(context)
-            },
-            onDismiss = {
-                showEnableAccessibilityDialog = false
-
-                val enabled = isAccessibilityEnabled(context)
-                viewModel.updateAccessibility(enabled)
-            })
+//        ModalDialog(
+//            show = showEnableAccessibilityDialog,
+//            title = "Accessibility Required",
+//            description = "Accessibility Service permission is required for the automated screen lock feature. \n" +
+//                    "\n" +
+//                    "* This service operates locally on your device and does not collect, store, or share any personal information.",
+//            confirmText = "Agree",
+//            dismissText = "Cancel",
+//            onConfirm = {
+//                showEnableAccessibilityDialog = false
+//                openAccessibilitySettings(context)
+//            },
+//            onDismiss = {
+//                showEnableAccessibilityDialog = false
+//
+//                val enabled = isAccessibilityEnabled(context)
+//                viewModel.updateAccessibility(enabled)
+//            }
+//        )
 
         //modal dialog notif
         ModalDialog(
@@ -306,7 +307,14 @@ fun HomeScreen(
 
 
         ModalDialog(
-            onDismiss = { showLockMethodDialog = false },
+            onDismiss = {
+                showLockMethodDialog = false
+
+                val enabled = isAccessibilityEnabled(context)
+                viewModel.updateAccessibility(enabled)
+                val dpmActive = isDpmActive(context)
+                viewModel.updateDeviceAdmin(dpmActive)
+            },
             title = "Choose Lock Method",
             description = "Select how the screen should be locked automatically.",
             leftButton = "Accessibility Service",
