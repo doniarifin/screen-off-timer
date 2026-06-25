@@ -1,0 +1,4 @@
+- Added Device Admin support for screen lock
+- Fixed timer state after app swipe
+- Improved background timer reliability
+- Removed unnecessary permissions
