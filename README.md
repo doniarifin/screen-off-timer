@@ -1,9 +1,13 @@
 # Sleep Timer for Android
 Android application designed to automatically turn off your screen or pause media playback after a set duration.
 
-I'm still learning Android development, so the code may not follow best practices in some areas. Feedback and suggestions are welcome!
-
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.inod.screenofftimer)
+<div align="center">
+  <h3>Download Now</h3>
+  <a href="https://f-droid.org/packages/com.inod.screenofftimer">
+    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">
+  </a>
+  <br>
+</div>
 
 ## Screenshots
 ### Dark theme
@@ -27,8 +31,6 @@ I'm still learning Android development, so the code may not follow best practice
 - **Language** — Kotlin
 - **UI Framework** — Jetpack Compose
 - **Design System** — Material Design 3
-- **Concurrency** — Kotlin Coroutines & Flow
-- **Background** — Foreground Service
 
 ## How to Use
 1. Launch the Screen Off Timer app.
@@ -37,22 +39,10 @@ I'm still learning Android development, so the code may not follow best practice
 4. The app counts down in the background. Once it reaches zero, it will lock the screen or stop media playback.
 
 ## Contributing
-Contributions are welcome! Here's how to get started:
 
-1. Fork this repository
-2. Create a new branch
-```bash
-   git checkout -b feature/your-feature-name
-```
-3. Make your changes and commit
-```bash
-   git commit -m "Add: your feature description"
-```
-4. Push to your fork
-```bash
-   git push origin feature/your-feature-name
-```
-5. Open a Pull Request
+Contributions are always welcome and highly appreciated!
+
+Whether want to fix a bug, add a new feature, or improve the documentation, feel free to open an issue or submit a Pull Request directly.
 
 ## License
 This project is licensed under the [Apache License 2.0](LICENSE).

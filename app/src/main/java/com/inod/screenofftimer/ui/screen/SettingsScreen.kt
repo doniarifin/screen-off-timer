@@ -1,6 +1,9 @@
 package com.inod.screenofftimer.ui.screen
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -37,15 +40,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.inod.screenofftimer.core.permission.AccessibilityPermission
 import com.inod.screenofftimer.core.permission.NotificationPermission
+import com.inod.screenofftimer.service.MyDeviceAdminReceiver
+import com.inod.screenofftimer.ui.components.ModalDialog
 import com.inod.screenofftimer.ui.components.SwitchStyle
 import com.inod.screenofftimer.ui.components.settings.HorizontalSelected
 import com.inod.screenofftimer.ui.components.settings.ListOption
@@ -98,6 +110,37 @@ fun SettingsScreen(
     )
 
     val isDynamicColorSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    var showDialogAdmin by remember { mutableStateOf(false) }
+    val deviceAdmin = settings.deviceAdmin
+
+    val handleToggleAdmin: (Boolean) -> Unit = { value ->
+        viewModel.updateDeviceAdmin(value)
+        if (value) {
+            val dpmActive = isDpmActive(context)
+            when {
+                dpmActive -> {
+                    viewModel.updateDeviceAdmin(true)
+                }
+                else -> {
+                    showDialogAdmin = true
+                }
+            }
+        } else {
+            removeDeviceAdmin(context)
+            viewModel.updateDeviceAdmin(false)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val dpmActive = isDpmActive(context)
+                viewModel.updateDeviceAdmin(dpmActive)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -216,14 +259,14 @@ fun SettingsScreen(
                     )
 
                     ListOption(
-                        onClick = { openDeviceAdminSettings(context) },
+                        onClick = { handleToggleAdmin(!deviceAdmin) },
                         title = "Device Admin",
-                        description = "Lock screen via device admin permission. Disable this before uninstalling the app.",
+                        description = "Lock screen via device admin permission, disable this before uninstalling the app",
                         icon = Icons.Default.AdminPanelSettings,
                         trailing = {
                             SwitchStyle(
-                                checked = settings.deviceAdmin,
-                                onCheckedChange = { openDeviceAdminSettings(context) }
+                                checked = deviceAdmin,
+                                onCheckedChange = handleToggleAdmin
                             )
                         }
                     )
@@ -242,6 +285,32 @@ fun SettingsScreen(
                 }
             }
         }
+
+        val descriptionText = buildAnnotatedString {
+            append("Device Admin permission is used to lock the device\n\n")
+            withStyle(style = SpanStyle(fontSize = 12.sp)) {
+                append("* No collect, store, or share any personal information.\n")
+                append("* Disable this permission, if you want to uninstall the app.")
+            }
+        }
+
+        //modal dialog admin
+        ModalDialog(
+            show = showDialogAdmin,
+            title = "Device Admin Permission",
+            description = descriptionText,
+            confirmText = "Agree",
+            dismissText = "Cancel",
+            onConfirm = {
+                showDialogAdmin = false
+                requestDeviceAdmin(context)
+            },
+            onDismiss = {
+                showDialogAdmin = false
+                val dpmActive = isDpmActive(context)
+                viewModel.updateDeviceAdmin(dpmActive)
+            },
+        )
     }
 }
 
@@ -252,5 +321,15 @@ fun openNotifPermission(activity: Activity) {
 
 fun openAccessibility(context: Context) {
     AccessibilityPermission.open(context)
+}
+
+@SuppressLint("ServiceCast")
+fun removeDeviceAdmin(context: Context) {
+    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
+
+    if (dpm.isAdminActive(component)) {
+        dpm.removeActiveAdmin(component)
+    }
 }
 

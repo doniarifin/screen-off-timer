@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -23,7 +24,7 @@ import androidx.compose.ui.window.DialogProperties
 fun ModalDialog(
     show: Boolean,
     title: String,
-    description: String,
+    description: AnnotatedString,
     confirmText: String = "Agree",
     dismissText: String = "Cancel",
     leftButton: String? = null,
@@ -42,8 +43,7 @@ fun ModalDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 40.dp),
-                colors = CardDefaults.cardColors(
-                ),
+                colors = CardDefaults.cardColors(),
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
             ) {
@@ -97,7 +97,32 @@ fun ModalDialog(
                     }
                 }
             }
-
         }
     }
+}
+
+@Composable
+fun ModalDialog(
+    show: Boolean,
+    title: String,
+    description: String,
+    confirmText: String = "Agree",
+    dismissText: String = "Cancel",
+    leftButton: String? = null,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    onLeftButton: (() -> Unit)? = null,
+) {
+
+    ModalDialog(
+        show = show,
+        title = title,
+        description = AnnotatedString(description),
+        confirmText = confirmText,
+        dismissText = dismissText,
+        leftButton = leftButton,
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        onLeftButton = onLeftButton
+    )
 }
