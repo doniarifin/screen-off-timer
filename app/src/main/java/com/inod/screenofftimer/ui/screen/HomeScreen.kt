@@ -162,10 +162,10 @@ fun HomeScreen(
             val accessibilityActive = isAccessibilityEnabled(context)
 
             when {
-                dpmActive || accessibilityActive -> { /* sudah ada metode aktif, skip */
+                dpmActive || accessibilityActive -> {
                 }
 
-                else -> showLockMethodDialog = true // tampil pilihan
+                else -> showLockMethodDialog = true
             }
         }
     }
@@ -326,7 +326,7 @@ fun HomeScreen(
             confirmText = "Admin",
             onConfirm = {
                 showLockMethodDialog = false
-                openDeviceAdminSettings(context)
+                requestDeviceAdmin(context)
             },
             show = showLockMethodDialog
         )
@@ -379,9 +379,13 @@ fun isDpmActive(context: Context): Boolean {
 }
 
 fun requestDeviceAdmin(context: Context) {
+    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
     val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
-    Log.d("DeviceAdmin", "component: ${component.flattenToString()}")
-    Log.d("DeviceAdmin", "starting intent...")
+
+    if (dpm.isAdminActive(component)) {
+        Log.d("DeviceAdmin", "Device Admin already active")
+        return
+    }
 
     val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
         putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
@@ -389,7 +393,6 @@ fun requestDeviceAdmin(context: Context) {
             DevicePolicyManager.EXTRA_ADD_EXPLANATION,
             "Required to lock screen automatically"
         )
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     context.startActivity(intent)
 }
