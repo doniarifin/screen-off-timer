@@ -1,0 +1,2 @@
+- fix Device Admin permission
+- fix Modal Dialog
