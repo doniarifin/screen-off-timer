@@ -7,10 +7,12 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -55,9 +57,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.inod.screenofftimer.core.permission.AccessibilityPermission
 import com.inod.screenofftimer.core.permission.NotificationPermission
+import com.inod.screenofftimer.data.prefs.Prefs
 import com.inod.screenofftimer.service.MediaControlAccessibilityService
 import com.inod.screenofftimer.service.MyDeviceAdminReceiver
+import com.inod.screenofftimer.service.isDpmActive
+import com.inod.screenofftimer.service.requestDeviceAdmin
 import com.inod.screenofftimer.ui.components.ModalDialog
 import com.inod.screenofftimer.ui.components.SwitchStyle
 import com.inod.screenofftimer.ui.components.settings.ListOption
@@ -215,9 +221,9 @@ fun HomeScreen(
                 modifier = Modifier.size(80.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = if (isRunning) MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = if (isRunning) MaterialTheme.colorScheme.errorContainer
                     else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (isRunning) MaterialTheme.colorScheme.error
+                    contentColor = if (isRunning) MaterialTheme.colorScheme.onErrorContainer
                     else MaterialTheme.colorScheme.onPrimaryContainer
                 )
             ) {
@@ -260,27 +266,6 @@ fun HomeScreen(
                     })
             }
         }
-
-        //modal dialog access
-//        ModalDialog(
-//            show = showEnableAccessibilityDialog,
-//            title = "Accessibility Required",
-//            description = "Accessibility Service permission is required for the automated screen lock feature. \n" +
-//                    "\n" +
-//                    "* This service operates locally on your device and does not collect, store, or share any personal information.",
-//            confirmText = "Agree",
-//            dismissText = "Cancel",
-//            onConfirm = {
-//                showEnableAccessibilityDialog = false
-//                openAccessibilitySettings(context)
-//            },
-//            onDismiss = {
-//                showEnableAccessibilityDialog = false
-//
-//                val enabled = isAccessibilityEnabled(context)
-//                viewModel.updateAccessibility(enabled)
-//            }
-//        )
 
         //modal dialog notif
         ModalDialog(
@@ -335,27 +320,15 @@ fun HomeScreen(
 }
 
 fun isAccessibilityEnabled(context: Context): Boolean {
-    val am =
-        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-
-    val enabledServices = am.getEnabledAccessibilityServiceList(
-        AccessibilityServiceInfo.FEEDBACK_ALL_MASK
-    )
-
-    return enabledServices.any {
-        it.resolveInfo.serviceInfo.name.contains(
-            MediaControlAccessibilityService::class.java.name
-        )
-    }
+    return AccessibilityPermission.isAccessibilityEnabled(context)
 }
 
 fun openAccessibilitySettings(context: Context) {
-    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(intent)
+    AccessibilityPermission.open(context)
 }
 
 fun openNotifSetting(activity: Activity) {
+//    Prefs.saveHasRequestedNotifPermission(activity, true)
     NotificationPermission.request(activity)
 }
 
@@ -369,49 +342,4 @@ private fun showToastProperly(context: Context) {
         "Please enable notifications for the timer to run properly.",
         Toast.LENGTH_LONG
     ).show()
-}
-
-@SuppressLint("ServiceCast")
-fun isDpmActive(context: Context): Boolean {
-    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
-    return dpm.isAdminActive(component)
-}
-
-fun requestDeviceAdmin(context: Context) {
-    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
-
-    if (dpm.isAdminActive(component)) {
-        Log.d("DeviceAdmin", "Device Admin already active")
-        return
-    }
-
-    val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-        putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
-        putExtra(
-            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            "Required to lock screen automatically"
-        )
-    }
-    context.startActivity(intent)
-}
-
-fun openDeviceAdminSettings(context: Context) {
-    val intent = Intent().apply {
-        component = ComponentName(
-            "com.android.settings",
-            "com.android.settings.DeviceAdminSettings"
-        )
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    try {
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        // fallback ke security settings if not found
-        val fallback = Intent(Settings.ACTION_SECURITY_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(fallback)
-    }
 }

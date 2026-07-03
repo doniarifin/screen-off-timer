@@ -20,6 +20,7 @@ object Prefs {
     private const val KEY_ACCESSIBILITY = "accessibility"
     private const val KEY_DEVICE_ADMIN = "device_admin"
 
+    private const val KEY_HAS_REQ_NOTIF = "has_req_notif"
     private const val KEY_NOTIF_PERMISSION = "notif_permission"
     private const val KEY_NO_SHOW_ASK_NOTIF = "no_show_ask_notif"
     private const val KEY_LEFT_SECONDS = "left_seconds"
@@ -37,13 +38,14 @@ object Prefs {
         val accessibility: Boolean = false,
         val deviceAdmin: Boolean = false,
         val isLockScreen: Boolean = false,
-        val isStopMedia: Boolean = false,
+        val isStopMedia: Boolean = true,
         val isGoHome: Boolean = false,
         val isDynamicColor: Boolean = false,
         val isNotifPermission: Boolean = false,
         val isNoShowNotif: Boolean = false,
         val startedSeconds: Int = 300,
         val lastDrag: Int = 300,
+        val hasReqNotif: Boolean = false,
     )
 
     private fun prefs(context: Context) =
@@ -65,8 +67,9 @@ object Prefs {
             minutes = all[KEY_MINUTES] as? Int ?: 0,
             accessibility = all[KEY_ACCESSIBILITY] as? Boolean ?: false,
             deviceAdmin = all[KEY_DEVICE_ADMIN] as? Boolean ?: false,
+            hasReqNotif = all[KEY_HAS_REQ_NOTIF] as? Boolean ?: false,
             isLockScreen = all[KEY_LOCK_SCREEN] as? Boolean ?: false,
-            isStopMedia = all[KEY_STOP_MEDIA] as? Boolean ?: false,
+            isStopMedia = all[KEY_STOP_MEDIA] as? Boolean ?: true,
             isGoHome = all[KEY_GO_HOME] as? Boolean ?: false,
             isDynamicColor = all[KEY_DYNAMIC_COLOR] as? Boolean ?: false,
             isNotifPermission = all[KEY_NOTIF_PERMISSION] as? Boolean ?: false,
@@ -182,7 +185,7 @@ object Prefs {
         prefs(context).edit { putBoolean(KEY_STOP_MEDIA, value) }
     }
 
-    fun isStopMedia(context: Context): Boolean = prefs(context).getBoolean(KEY_STOP_MEDIA, false)
+    fun isStopMedia(context: Context): Boolean = prefs(context).getBoolean(KEY_STOP_MEDIA, true)
 
     fun saveGoHome(context: Context, value: Boolean) {
         prefs(context).edit { putBoolean(KEY_GO_HOME, value) }
@@ -210,4 +213,11 @@ object Prefs {
 
     fun isNoShowNotifPermission(context: Context): Boolean =
         prefs(context).getBoolean(KEY_NO_SHOW_ASK_NOTIF, false)
+
+    fun saveHasRequestedNotifPermission(context: Context, value: Boolean) {
+        prefs(context).edit { putBoolean(KEY_HAS_REQ_NOTIF, value) }
+    }
+
+    fun getHasRequestedNotifPermission(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_HAS_REQ_NOTIF, false)
 }

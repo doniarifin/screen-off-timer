@@ -3,6 +3,7 @@ package com.inod.screenofftimer.core.utils
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
+import android.util.Log
 import android.view.KeyEvent
 
 class MediaUtils () {
@@ -17,11 +18,15 @@ class MediaUtils () {
     }
 
     fun goToHome(context: Context) {
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        try {
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("goToHome", "Failed to go home", e)
         }
-        context.startActivity(intent)
     }
 }
 

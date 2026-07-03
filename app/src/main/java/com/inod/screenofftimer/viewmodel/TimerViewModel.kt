@@ -94,6 +94,17 @@ class TimerViewModel(
         loadInitialSettings()
     }
 
+    init {
+        viewModelScope.launch {
+            getLeftSeconds.collect { seconds ->
+                if (isRunning) {
+                    leftSeconds = seconds
+                    state["left_seconds"] = seconds
+                }
+            }
+        }
+    }
+
     private fun loadInitialSettings() {
         viewModelScope.launch(Dispatchers.IO) {
             val settings = Prefs.getAllSettings(context)
@@ -245,7 +256,10 @@ class TimerViewModel(
         updateMinutes(min)
         updateLeftSeconds(min * 60)
         updateStartedSeconds(min * 60)
-        updateTimer(application, min)
+//        updateTimer(application, min)
+        if (isRunning) {
+            updateTimer(application, min)
+        }
     }
 
     fun saveLastDrag(minutes: Int) {

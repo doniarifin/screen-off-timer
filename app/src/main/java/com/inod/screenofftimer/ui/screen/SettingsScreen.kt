@@ -5,8 +5,9 @@ import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
@@ -54,9 +56,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.inod.screenofftimer.core.permission.AccessibilityPermission
 import com.inod.screenofftimer.core.permission.NotificationPermission
 import com.inod.screenofftimer.service.MyDeviceAdminReceiver
+import com.inod.screenofftimer.service.isDpmActive
+import com.inod.screenofftimer.service.requestDeviceAdmin
+import com.inod.screenofftimer.ui.components.BackSource
 import com.inod.screenofftimer.ui.components.ModalDialog
 import com.inod.screenofftimer.ui.components.SwitchStyle
 import com.inod.screenofftimer.ui.components.settings.HorizontalSelected
@@ -64,17 +70,18 @@ import com.inod.screenofftimer.ui.components.settings.ListOption
 import com.inod.screenofftimer.ui.components.settings.ListSection
 import com.inod.screenofftimer.ui.enums.ThemeMode
 import com.inod.screenofftimer.viewmodel.TimerViewModel
+import androidx.core.net.toUri
+import com.inod.screenofftimer.service.removeDeviceAdmin
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     context: Context,
     viewModel: TimerViewModel,
     onBack: () -> Unit,
-    onOpenLicenses: () -> Unit
+    navController: NavController
 ) {
-    BackHandler { onBack() }
+//    BackHandler { onBack() }
 
     val activity = context as Activity
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -110,6 +117,7 @@ fun SettingsScreen(
     )
 
     val isDynamicColorSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     var showDialogAdmin by remember { mutableStateOf(false) }
     val deviceAdmin = settings.deviceAdmin
 
@@ -156,7 +164,12 @@ fun SettingsScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("backSource", BackSource.CLICK.name)
+                        navController.popBackStack()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -170,7 +183,8 @@ fun SettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 32.dp)
         ) {
             item {
                 ListSection(title = "Theme", titleIcon = Icons.Outlined.Palette) {
@@ -277,7 +291,14 @@ fun SettingsScreen(
             item {
                 ListSection(title = "Info", padding = PaddingValues(top = 10.dp, bottom = 10.dp), titleIcon = Icons.Outlined.Info) {
                     ListOption(
-                        onClick = { onOpenLicenses() },
+                        onClick = { openUrl(context, "https://ko-fi.com/inodxx") },
+                        title = "Donate",
+                        description = "Support me :)",
+                        icon = Icons.Default.Favorite
+                    )
+
+                    ListOption(
+                        onClick = { navController.navigate("licenses") },
                         title = "Open source licenses",
                         description = "Open source libraries used in this app",
                         icon = Icons.Default.Code
@@ -314,7 +335,6 @@ fun SettingsScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun openNotifPermission(activity: Activity) {
     NotificationPermission.openSettings(activity)
 }
@@ -323,13 +343,13 @@ fun openAccessibility(context: Context) {
     AccessibilityPermission.open(context)
 }
 
-@SuppressLint("ServiceCast")
-fun removeDeviceAdmin(context: Context) {
-    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
-
-    if (dpm.isAdminActive(component)) {
-        dpm.removeActiveAdmin(component)
+@SuppressLint("UseKt")
+fun openUrl(context: Context, url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+        context.startActivity(intent)
+    } catch (_: Exception) {
     }
 }
+
 

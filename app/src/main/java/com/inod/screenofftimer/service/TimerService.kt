@@ -14,18 +14,20 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.core.content.edit
+import com.inod.screenofftimer.core.notification.Notifications
+import com.inod.screenofftimer.core.utils.MediaUtils
+import com.inod.screenofftimer.core.utils.lockScreenDevice
+import com.inod.screenofftimer.data.prefs.Prefs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import androidx.core.content.edit
-import com.inod.screenofftimer.data.prefs.Prefs
-import com.inod.screenofftimer.core.notification.Notifications
-import com.inod.screenofftimer.core.utils.MediaUtils
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class TimerService() : Service() {
 
@@ -50,14 +52,21 @@ class TimerService() : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
+    private fun startForegroundCompat(remaining: Int) {
+        val notif = notification.defaultNotification(this, remaining)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(1, notif)
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-//    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
 
             null -> {
-
                 val endTime = getEndTime()
                 val remaining = ((endTime - System.currentTimeMillis()) / 1000).toInt()
 
@@ -65,11 +74,7 @@ class TimerService() : Service() {
                     isServiceRunning = true
                     Prefs.saveRunning(applicationContext, true)
 
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
+                    startForegroundCompat(remaining)
                     startTimer()
                 } else {
                     Prefs.saveRunning(applicationContext, false)
@@ -95,88 +100,41 @@ class TimerService() : Service() {
                 }
 
                 Prefs.saveLeftSeconds(applicationContext, finalDuration)
-
                 val endTime = System.currentTimeMillis() + (finalDuration * 1000L)
                 saveEndTime(endTime)
                 saveRemainingTime(0)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, finalDuration),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                } else {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, finalDuration),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                }
-
+                startForegroundCompat(finalDuration)
                 startTimer()
-
                 return START_STICKY
             }
 
             ACTION_ADD_MINUTE -> {
-
                 val extra = intent.getIntExtra("time_update", 10 * 60)
-
                 val currentEndTime = getEndTime()
-
                 val newEndTime = currentEndTime + (extra * 1000L)
 
                 saveEndTime(newEndTime)
 
                 val remaining = ((newEndTime - System.currentTimeMillis()) / 1000).toInt()
+
                 saveRemainingTime(remaining)
                 Prefs.saveLeftSeconds(applicationContext, remaining)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                } else {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                }
-
+                startForegroundCompat(remaining)
                 return START_STICKY
             }
 
             ACTION_REDUCE_MINUTE -> {
-
                 val extra = intent.getIntExtra("time_update", 10 * 60)
-
                 val currentEndTime = getEndTime()
-
                 val newEndTime = currentEndTime - (extra * 1000L)
-
                 saveEndTime(newEndTime)
 
                 val remaining = ((newEndTime - System.currentTimeMillis()) / 1000).toInt()
                 saveRemainingTime(remaining)
                 Prefs.saveLeftSeconds(applicationContext, remaining)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                } else {
-                    startForeground(
-                        1,
-                        notification.defaultNotification(this, remaining),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
-                }
+                startForegroundCompat(remaining)
 
                 return START_STICKY
             }
@@ -184,8 +142,6 @@ class TimerService() : Service() {
             ACTION_UPDATE -> {
                 val newDuration = intent.getIntExtra("time", 0)
                 val newEndTime = System.currentTimeMillis() + (newDuration * 1000L)
-
-//                Log.d("UPDATE", "SECONDS: $newDuration")
 
                 saveEndTime(newEndTime)
                 saveRemainingTime(newDuration)
@@ -209,10 +165,7 @@ class TimerService() : Service() {
 
                 return START_NOT_STICKY
             }
-
-
         }
-
         return START_STICKY
     }
 
@@ -223,7 +176,6 @@ class TimerService() : Service() {
 
         scope.launch {
             while (isActive) {
-
                 val remainingMillis = getEndTime() - System.currentTimeMillis()
                 val remaining = (remainingMillis / 1000).toInt()
 
@@ -233,22 +185,18 @@ class TimerService() : Service() {
                 Prefs.saveLeftSeconds(applicationContext, remaining)
                 sendUpdate(remaining)
 
-                delay(1050)
+                delay(1000.milliseconds)
             }
 
             val lastDrag = Prefs.getLastDrag(application)
-
             updateNotification(0)
             //broadcast also update left_seconds in prefs
             sendUpdate(lastDrag)
-
             //update is_running
             Prefs.saveRunning(applicationContext, false)
-//            Prefs.saveLeftSeconds(applicationContext, 300)
 
             saveEndTime(0)
             saveRemainingTime(0)
-
             onTimerFinished()
         }
     }
@@ -268,55 +216,34 @@ class TimerService() : Service() {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun updateNotification(time: Int) {
         notification.defaultNotificationCompat(this, time)
-
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-//        Log.d("IS_RUNNING", "On destroy")
         isServiceRunning = false
-
         Prefs.saveRunning(applicationContext, false)
-
           scope.cancel()
-
           super.onDestroy()
     }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onTimeout(startId: Int, fgsType: Int) {
         super.onTimeout(startId, fgsType)
-
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf(startId)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-//        isServiceRunning = false
-
-//        val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
-//        val accessibility = Prefs.isAccessibility(applicationContext)
 
         val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
         if (remaining <= 0) {
             scope.launch {
                 Prefs.saveRunning(applicationContext, false)
-                delay(50)
+                delay(50.milliseconds)
                 stopSelf()
             }
         }
-//        if (remaining > 0) {
-//            if (!accessibility) Prefs.saveRunning(applicationContext, false)
-//        } else {
-//            scope.launch {
-//                Prefs.saveRunning(applicationContext, false)
-//                delay(50)
-//                stopSelf()
-//            }
-//
-//        }
     }
 
     private fun saveEndTime(time: Long) {
@@ -324,7 +251,6 @@ class TimerService() : Service() {
             .edit {
                 putLong("end_time", time)
             }
-
     }
 
     private fun getEndTime(): Long {
@@ -342,39 +268,26 @@ class TimerService() : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    private fun onTimerFinished() {
+    private suspend fun onTimerFinished() {
+        if (Prefs.isGoHome(applicationContext)) {
+            goHome(applicationContext)
+        }
         if (Prefs.isStopMedia(applicationContext)) {
             stopMedia(applicationContext)
         }
+
+        delay(500.milliseconds)
         if (Prefs.isLockScreen(applicationContext)) {
             lockScreen(applicationContext)
-        }
-        if (Prefs.isGoHome(applicationContext)) {
-            goHome(applicationContext)
         }
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    @SuppressLint("ServiceCast")
     @RequiresApi(Build.VERSION_CODES.P)
     fun lockScreen(context: Context) {
-        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE)
-                as DevicePolicyManager
-        val component = ComponentName(context, MyDeviceAdminReceiver::class.java)
-
-        when {
-            dpm.isAdminActive(component) -> {
-                dpm.lockNow() // Device Admin
-            }
-            MediaControlAccessibilityService.instance != null -> {
-                MediaControlAccessibilityService.instance?.lockScreenNow() // Accessibility
-            }
-            else -> {
-                // skip
-            }
-        }
+        lockScreenDevice(context)
     }
 
     fun stopMedia(context: Context) {

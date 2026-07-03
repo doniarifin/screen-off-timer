@@ -19,7 +19,6 @@ import com.inod.screenofftimer.core.broadcast.TimerReceiver
 import com.inod.screenofftimer.ui.notification.DEFAULT
 
 class Notifications() {
-
     @SuppressLint("DefaultLocale")
     fun defaultNotification(context: Context, time: Int): Notification {
 

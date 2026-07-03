@@ -38,11 +38,8 @@ fun TimerProgress(viewModel: TimerViewModel) {
     val timeLeftSeconds = viewModel.leftSeconds
 
     val oneHour = 60 * 60
-
     val baseProgress = (timeLeftSeconds / oneHour.toFloat()).coerceIn(0f, 1f)
-
     var dragProgress by remember { mutableFloatStateOf(-1f) }
-
     val displayProgress = if (dragProgress >= 0f) dragProgress else baseProgress
 
     val sizeDp = 300.dp
@@ -78,13 +75,10 @@ fun TimerProgress(viewModel: TimerViewModel) {
                     }
                 ) { change, _ ->
                     if (isRunning) return@detectDragGestures
-
                     val rawProgress = calculateProgress(change.position, sizePx)
-
                     val snappedMinutes = (rawProgress * 60).roundToInt()
 
                     dragProgress = snappedMinutes / 60f
-
                     change.consume()
                 }
             }

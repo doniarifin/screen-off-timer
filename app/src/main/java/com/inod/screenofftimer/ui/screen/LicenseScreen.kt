@@ -1,6 +1,5 @@
-package com.inod.screenofftimer.ui.components.settings
+package com.inod.screenofftimer.ui.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -20,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
@@ -28,9 +28,10 @@ import com.mikepenz.aboutlibraries.ui.compose.libraryColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicenseScreen(
+    navController: NavController,
     onBack: () -> Unit
 ) {
-    BackHandler { onBack() }
+//    BackHandler { onBack() }
 
     val libs by produceLibraries()
 
@@ -42,12 +43,13 @@ fun LicenseScreen(
     )
 
     Scaffold(
+//        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         topBar = {
             TopAppBar(
                 title = { Text("Open source licenses") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 }

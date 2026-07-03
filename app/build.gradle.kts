@@ -17,8 +17,8 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.3.2"
+        versionCode = 8
+        versionName = "1.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -84,8 +84,10 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.navigation.compose.v280)
+//    implementation(libs.androidx.navigation.compose.v280)
 
     implementation(libs.aboutlibraries.compose)
     implementation(libs.material)
+
+    implementation(libs.androidx.navigation.compose.v287)
 }

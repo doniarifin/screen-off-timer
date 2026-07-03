@@ -12,11 +12,13 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.inod.screenofftimer.data.prefs.Prefs
 import com.inod.screenofftimer.service.TimerService
@@ -29,15 +31,15 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         window.setBackgroundDrawableResource(android.R.color.black)
 
         enableEdgeToEdge()
 
         setContent {
             val viewModel: TimerViewModel = viewModel()
-
             val settings by viewModel.allSettings.collectAsState()
-
             val isDark = when (settings.theme) {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false

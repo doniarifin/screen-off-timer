@@ -1,6 +1,7 @@
 [versions]
 aboutlibrariesCompose = "14.0.1"
 agp = "9.1.1"
+androidxNavigationCompose = "2.8.7"
 coreKtx = "1.18.0"
 coreSplashscreen = "1.2.0"
 datastorePreferences = "1.2.1"
@@ -35,6 +36,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-navigation-compose-v280 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+androidx-navigation-compose-v287 = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

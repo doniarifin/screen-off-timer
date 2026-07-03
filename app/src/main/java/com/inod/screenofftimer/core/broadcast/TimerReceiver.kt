@@ -9,7 +9,6 @@ import com.inod.screenofftimer.data.prefs.Prefs
 import com.inod.screenofftimer.service.TimerService
 
 class TimerReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("RECEIVER", "onReceive: ${intent.action}")
 

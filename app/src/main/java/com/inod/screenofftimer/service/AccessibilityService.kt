@@ -1,9 +1,12 @@
 package com.inod.screenofftimer.service
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.RequiresApi
 
 @SuppressLint("AccessibilityPolicy")
