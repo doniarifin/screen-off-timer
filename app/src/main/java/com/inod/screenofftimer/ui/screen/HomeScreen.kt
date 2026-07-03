@@ -118,9 +118,28 @@ fun HomeScreen(
     }
 
     // sign the receiver broadcast
-    DisposableEffect(Unit) {
-        viewModel.registerReceiver(context)
-        onDispose { viewModel.unregisterReceiver(context) }
+//    DisposableEffect(Unit) {
+//        viewModel.registerReceiver(context)
+//        onDispose { viewModel.unregisterReceiver(context) }
+//    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    viewModel.registerReceiver(context)
+                    viewModel.reconcileTimerState()
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    viewModel.unregisterReceiver(context)
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     var showEnableAccessibilityDialog by remember { mutableStateOf(false) }

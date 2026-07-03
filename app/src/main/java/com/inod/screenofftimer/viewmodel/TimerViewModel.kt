@@ -94,6 +94,11 @@ class TimerViewModel(
         loadInitialSettings()
     }
 
+    fun reconcileTimerState() {
+        val intent = Intent(application, TimerService::class.java)
+        application.startService(intent)
+    }
+
     init {
         viewModelScope.launch {
             getLeftSeconds.collect { seconds ->
@@ -122,6 +127,11 @@ class TimerViewModel(
                 isDynamicColor = settings.isDynamicColor
                 isNotifPermission = settings.isNotifPermission
                 isNoShowNotifPermission = settings.isNoShowNotif
+
+                if (isRunning) {
+                    reconcileTimerState()   // resume
+                }
+
             }
         }
     }
@@ -211,6 +221,7 @@ class TimerViewModel(
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if (intent?.action == "TIMER_TICK") {
+                if (!isRunning) return
                 val seconds = intent.getIntExtra("time_left", 0)
                 updateLeftSeconds(seconds)
                 if (seconds <= 0) updateRunning(false)

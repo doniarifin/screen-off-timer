@@ -53,11 +53,15 @@ class TimerService() : Service() {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private fun startForegroundCompat(remaining: Int) {
-        val notif = notification.defaultNotification(this, remaining)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(1, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-        } else {
-            startForeground(1, notif)
+        try {
+            val notif = notification.defaultNotification(this, remaining)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(1, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            } else {
+                startForeground(1, notif)
+            }
+        } catch (e: Exception) {
+            Log.w("TIMER_SVC", "startForegroundCompat failed: ${e.message}")
         }
     }
 
@@ -65,18 +69,23 @@ class TimerService() : Service() {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-
             null -> {
                 val endTime = getEndTime()
                 val remaining = ((endTime - System.currentTimeMillis()) / 1000).toInt()
 
-                if (remaining > 0) {
+                val hasNotifPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                } else true
+
+                if (remaining > 0 && hasNotifPermission) {
                     isServiceRunning = true
                     Prefs.saveRunning(applicationContext, true)
-
                     startForegroundCompat(remaining)
                     startTimer()
                 } else {
+                    saveEndTime(0)
+                    saveRemainingTime(0)
                     Prefs.saveRunning(applicationContext, false)
                     stopSelf()
                 }
@@ -84,27 +93,20 @@ class TimerService() : Service() {
             }
 
             ACTION_START -> {
-                val duration = intent.getIntExtra("time", -1) ?: -1
-                val savedRemaining = getRemainingTime()
+                val duration = intent.getIntExtra("time", -1)
 
-                val finalDuration = when {
-                    savedRemaining > 0 -> savedRemaining
-                    duration > 0 -> duration
-                    else -> 0
-                }
-
-                if (finalDuration <= 0) {
+                if (duration <= 0) {
                     stopSelf()
                     Prefs.saveRunning(applicationContext, false)
                     return START_NOT_STICKY
                 }
 
-                Prefs.saveLeftSeconds(applicationContext, finalDuration)
-                val endTime = System.currentTimeMillis() + (finalDuration * 1000L)
-                saveEndTime(endTime)
                 saveRemainingTime(0)
+                Prefs.saveLeftSeconds(applicationContext, duration)
+                val endTime = System.currentTimeMillis() + (duration * 1000L)
+                saveEndTime(endTime)
 
-                startForegroundCompat(finalDuration)
+                startForegroundCompat(duration)
                 startTimer()
                 return START_STICKY
             }
@@ -140,6 +142,8 @@ class TimerService() : Service() {
             }
 
             ACTION_UPDATE -> {
+                scope.coroutineContext.cancelChildren()
+
                 val newDuration = intent.getIntExtra("time", 0)
                 val newEndTime = System.currentTimeMillis() + (newDuration * 1000L)
 
@@ -153,12 +157,11 @@ class TimerService() : Service() {
             }
 
             ACTION_STOP -> {
-                val newDuration = intent.getIntExtra("time", 0)
-                val newEndTime = System.currentTimeMillis() + (newDuration * 1000L)
-                saveEndTime(newEndTime)
+                scope.coroutineContext.cancelChildren()
 
-                val remaining = ((getEndTime() - System.currentTimeMillis()) / 1000).toInt()
-                saveRemainingTime(remaining)
+                saveEndTime(0)          // ← reset total, bukan hitung ulang ke masa depan
+                saveRemainingTime(0)
+                Prefs.saveRunning(applicationContext, false)
 
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -181,7 +184,12 @@ class TimerService() : Service() {
 
                 if (remaining <= 0) break
 
-                updateNotification(remaining)
+                try {
+                    updateNotification(remaining)
+                } catch (e: Exception) {
+                    Log.w("TIMER_SVC", "updateNotification failed: ${e.message}")
+                }
+
                 Prefs.saveLeftSeconds(applicationContext, remaining)
                 sendUpdate(remaining)
 
@@ -189,10 +197,12 @@ class TimerService() : Service() {
             }
 
             val lastDrag = Prefs.getLastDrag(application)
-            updateNotification(0)
-            //broadcast also update left_seconds in prefs
+            try {
+                updateNotification(0)
+            } catch (e: Exception) {
+                Log.w("TIMER_SVC", "updateNotification failed: ${e.message}")
+            }
             sendUpdate(lastDrag)
-            //update is_running
             Prefs.saveRunning(applicationContext, false)
 
             saveEndTime(0)
@@ -223,8 +233,8 @@ class TimerService() : Service() {
     override fun onDestroy() {
         isServiceRunning = false
         Prefs.saveRunning(applicationContext, false)
-          scope.cancel()
-          super.onDestroy()
+        scope.cancel()
+        super.onDestroy()
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {

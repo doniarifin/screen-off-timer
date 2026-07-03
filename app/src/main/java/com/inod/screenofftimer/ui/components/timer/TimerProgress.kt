@@ -11,9 +11,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,10 @@ import kotlin.math.sin
 @Composable
 fun TimerProgress(viewModel: TimerViewModel) {
 
+    LaunchedEffect(Unit) {
+        viewModel.reconcileTimerState()
+    }
+
     val isRunning = viewModel.isRunning
     val timeLeftSeconds = viewModel.leftSeconds
 
@@ -53,6 +59,8 @@ fun TimerProgress(viewModel: TimerViewModel) {
     val thumbColor = if (isRunning) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
 
+    val currentIsRunning by rememberUpdatedState(isRunning)
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -60,7 +68,7 @@ fun TimerProgress(viewModel: TimerViewModel) {
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
-                        if (!isRunning && dragProgress >= 0f) {
+                        if (!currentIsRunning && dragProgress >= 0f) {
                             val totalMinutes = (dragProgress * 60).roundToInt()
 
                             val finalMinutes = totalMinutes.coerceAtLeast(1)
@@ -74,7 +82,7 @@ fun TimerProgress(viewModel: TimerViewModel) {
                         dragProgress = -1f
                     }
                 ) { change, _ ->
-                    if (isRunning) return@detectDragGestures
+                    if (currentIsRunning) return@detectDragGestures
                     val rawProgress = calculateProgress(change.position, sizePx)
                     val snappedMinutes = (rawProgress * 60).roundToInt()
 
@@ -112,11 +120,11 @@ fun TimerProgress(viewModel: TimerViewModel) {
                 color = thumbColor,
                 radius = strokeWidthPx * 1.5f,
                 center = Offset(thumbX, thumbY),
-                alpha = if (isRunning) 0.5f else 1f
+                alpha = if (currentIsRunning) 0.5f else 1f
             )
 
             drawCircle(
-                color = if (isRunning) Color.Transparent else onPrimaryColor,
+                color = if (currentIsRunning) Color.Transparent else onPrimaryColor,
                 radius = strokeWidthPx * 0.5f,
                 center = Offset(thumbX, thumbY)
             )
