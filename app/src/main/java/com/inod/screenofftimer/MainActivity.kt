@@ -26,6 +26,7 @@ import com.inod.screenofftimer.ui.enums.ThemeMode
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()

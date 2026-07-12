@@ -1,5 +1,6 @@
 package com.inod.screenofftimer.ui.components.settings
 
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,12 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import com.inod.screenofftimer.ui.components.ModalDialog
 
 @Composable
 fun ListOption(
     title: String? = null,
     description: String? = null,
+    secondaryDescription: String? = null,
     enabled: Boolean? = true,
     icon: ImageVector? = null,
     contentIcon: String? = null,
@@ -82,7 +87,6 @@ fun ListOption(
                         } else {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         }
-
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     if (description != null) {
@@ -95,15 +99,25 @@ fun ListOption(
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             }
                         )
-
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    if (secondaryDescription != null) {
+                        Text(
+                            secondaryDescription,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontStyle = FontStyle.Italic,
+                            color = if (enabled) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            }
+                        )
                     }
                 }
-
             }
 
             trailing?.invoke()
             bottomContent?.invoke()
         }
-
     }
 }
