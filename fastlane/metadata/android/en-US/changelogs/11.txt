@@ -1,0 +1,2 @@
+- add option to auto close app when timer starts
+- save last drag duration

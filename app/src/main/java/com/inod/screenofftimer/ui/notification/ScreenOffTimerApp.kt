@@ -9,7 +9,7 @@ import android.os.Build
 const val DEFAULT = "timer"
 const val DEFAULT_NAME = "Sleep Timer"
 
-class BaseNotification : Application() {
+class ScreenOffTimerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -17,7 +17,7 @@ class BaseNotification : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel =
                 NotificationChannel(DEFAULT, DEFAULT_NAME, NotificationManager.IMPORTANCE_HIGH).apply {
-                    description = "Notifikasi Timer"
+                    description = "Notification Timer"
                     setSound(null, null)
                     enableVibration(false)
                 }

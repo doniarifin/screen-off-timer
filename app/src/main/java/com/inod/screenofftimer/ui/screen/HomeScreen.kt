@@ -169,6 +169,11 @@ fun HomeScreen(
             } else {
                 showToastProperly(context)
             }
+            return@let
+        }
+
+        if (settings.isAutoCloseOnStart) {
+            activity.moveTaskToBack(true)
         }
     }
 

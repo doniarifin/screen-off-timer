@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
@@ -237,6 +238,19 @@ fun SettingsScreen(
                             SwitchStyle(
                                 checked = settings.isGoHome,
                                 onCheckedChange = { viewModel.updateGoHome(it) }
+                            )
+                        }
+                    )
+
+                    ListOption(
+                        title = "Auto close on start",
+                        description = "Automatically close the app when the timer starts",
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
+                        onClick = { viewModel.updateAutoCloseOnStart(!settings.isAutoCloseOnStart) },
+                        trailing = {
+                            SwitchStyle(
+                                checked = settings.isAutoCloseOnStart,
+                                onCheckedChange = { viewModel.updateAutoCloseOnStart(it) }
                             )
                         }
                     )
