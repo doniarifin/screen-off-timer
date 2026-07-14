@@ -2,10 +2,7 @@ package com.inod.screenofftimer.service
 
 //noinspection SuspiciousImport
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Service
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -16,9 +13,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.content.edit
 import com.inod.screenofftimer.core.notification.Notifications
-import com.inod.screenofftimer.core.utils.MediaUtils
-import com.inod.screenofftimer.core.utils.lockScreenDevice
-import com.inod.screenofftimer.data.prefs.Prefs
+import com.inod.screenofftimer.utils.MediaUtils
+import com.inod.screenofftimer.utils.lockScreenDevice
+import com.inod.screenofftimer.data.Prefs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

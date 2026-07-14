@@ -1,4 +1,4 @@
-package com.inod.screenofftimer.core.utils
+package com.inod.screenofftimer.utils
 
 import android.content.Context
 import android.content.Intent

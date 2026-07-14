@@ -1,18 +1,8 @@
 package com.inod.screenofftimer.ui.screen
 
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.os.Build
-import android.provider.Settings
-import android.util.Log
-import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -59,9 +49,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.inod.screenofftimer.core.permission.AccessibilityPermission
 import com.inod.screenofftimer.core.permission.NotificationPermission
-import com.inod.screenofftimer.data.prefs.Prefs
-import com.inod.screenofftimer.service.MediaControlAccessibilityService
-import com.inod.screenofftimer.service.MyDeviceAdminReceiver
 import com.inod.screenofftimer.service.isDpmActive
 import com.inod.screenofftimer.service.requestDeviceAdmin
 import com.inod.screenofftimer.ui.components.ModalDialog

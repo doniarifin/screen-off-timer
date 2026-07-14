@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.ScreenOffTimer" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.ScreenOffTimer" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowBackground">@color/black</item>
 

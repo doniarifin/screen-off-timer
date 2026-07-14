@@ -2,13 +2,9 @@ package com.inod.screenofftimer.ui.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -60,7 +56,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.inod.screenofftimer.core.permission.AccessibilityPermission
 import com.inod.screenofftimer.core.permission.NotificationPermission
-import com.inod.screenofftimer.service.MyDeviceAdminReceiver
 import com.inod.screenofftimer.service.isDpmActive
 import com.inod.screenofftimer.service.requestDeviceAdmin
 import com.inod.screenofftimer.ui.components.BackSource
@@ -69,7 +64,7 @@ import com.inod.screenofftimer.ui.components.SwitchStyle
 import com.inod.screenofftimer.ui.components.settings.HorizontalSelected
 import com.inod.screenofftimer.ui.components.settings.ListOption
 import com.inod.screenofftimer.ui.components.settings.ListSection
-import com.inod.screenofftimer.ui.enums.ThemeMode
+import com.inod.screenofftimer.ui.ThemeMode
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 import androidx.core.net.toUri
 import com.inod.screenofftimer.service.removeDeviceAdmin

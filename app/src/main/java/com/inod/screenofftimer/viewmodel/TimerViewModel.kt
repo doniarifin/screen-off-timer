@@ -15,9 +15,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
-import com.inod.screenofftimer.data.prefs.Prefs
+import com.inod.screenofftimer.data.Prefs
 import com.inod.screenofftimer.service.TimerService
-import com.inod.screenofftimer.ui.enums.ThemeMode
+import com.inod.screenofftimer.ui.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn

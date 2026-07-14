@@ -17,8 +17,8 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.3.6"
+        versionCode = 12
+        versionName = "1.3.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,7 +30,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -52,27 +53,32 @@ android {
 }
 
 dependencies {
+    // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
+
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.compose.ui.text)
-    implementation(libs.androidx.material3)
-//    implementation(libs.androidx.compose.material3.v121)
-//    implementation(libs.firebase.crashlytics.2buildtools)
     implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.foundation.layout)
-    implementation(libs.androidx.ui)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.animation.core)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
 
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Libraries
+    implementation(libs.aboutlibraries.compose)
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,14 +86,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.core.splashscreen)
-//    implementation(libs.androidx.navigation.compose.v280)
-
-    implementation(libs.aboutlibraries.compose)
-    implementation(libs.material)
-
-    implementation(libs.androidx.navigation.compose.v287)
 }

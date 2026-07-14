@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.inod.screenofftimer.data.prefs.Prefs
+import com.inod.screenofftimer.data.Prefs
 import com.inod.screenofftimer.service.TimerService
 
 class TimerReceiver : BroadcastReceiver() {

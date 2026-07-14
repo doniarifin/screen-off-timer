@@ -1,8 +1,8 @@
-package com.inod.screenofftimer.data.prefs
+package com.inod.screenofftimer.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.inod.screenofftimer.ui.enums.ThemeMode
+import com.inod.screenofftimer.ui.ThemeMode
 import androidx.core.content.edit
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

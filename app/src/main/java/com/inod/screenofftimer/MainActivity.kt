@@ -5,24 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.inod.screenofftimer.data.prefs.Prefs
+import com.inod.screenofftimer.data.Prefs
 import com.inod.screenofftimer.service.TimerService
-import com.inod.screenofftimer.ui.enums.ThemeMode
+import com.inod.screenofftimer.ui.ThemeMode
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
@@ -31,8 +28,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         window.setBackgroundDrawableResource(android.R.color.black)
 

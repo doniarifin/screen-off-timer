@@ -1,4 +1,4 @@
-package com.inod.screenofftimer.ui.enums
+package com.inod.screenofftimer.ui
 
 enum class ThemeMode  {
     LIGHT, DARK, SYSTEM

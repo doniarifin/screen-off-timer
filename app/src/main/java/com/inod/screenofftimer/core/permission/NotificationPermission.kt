@@ -8,11 +8,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.inod.screenofftimer.data.prefs.Prefs
+import com.inod.screenofftimer.data.Prefs
 
 object NotificationPermission {
     fun isGranted(activity: Activity): Boolean {
