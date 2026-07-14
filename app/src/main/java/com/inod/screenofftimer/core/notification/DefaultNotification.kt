@@ -16,7 +16,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.inod.screenofftimer.MainActivity
 import com.inod.screenofftimer.core.broadcast.TimerReceiver
-import com.inod.screenofftimer.ui.notification.DEFAULT
+import com.inod.screenofftimer.DEFAULT
 
 class Notifications() {
     @SuppressLint("DefaultLocale")

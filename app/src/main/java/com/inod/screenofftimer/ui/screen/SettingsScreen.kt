@@ -307,9 +307,9 @@ fun SettingsScreen(
                     )
 
                     ListOption(
-                        onClick = { navController.navigate("licenses") },
-                        title = "Open source licenses",
-                        description = "Open source libraries used in this app",
+                        onClick = { navController.navigate("libraries") },
+                        title = "Open-source Libraries",
+                        description = "Open-source Libraries used in this app",
                         icon = Icons.Default.Code
                     )
                 }

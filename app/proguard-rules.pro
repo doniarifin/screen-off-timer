@@ -19,3 +19,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# aboutlibraries does not ship its own consumer ProGuard rules, so keep its
+# classes (and the kotlinx.serialization models it uses to parse the license
+# JSON) from being optimized/stripped by R8.
+-keep class com.mikepenz.aboutlibraries.** { *; }
+-keep class kotlinx.serialization.** { *; }
+-keepattributes *Annotation*, InnerClasses
+-dontwarn kotlinx.serialization.**

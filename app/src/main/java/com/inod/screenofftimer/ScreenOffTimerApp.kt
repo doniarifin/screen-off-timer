@@ -1,9 +1,8 @@
-package com.inod.screenofftimer.ui.notification
+package com.inod.screenofftimer
 
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Build
 
 const val DEFAULT = "timer"
@@ -23,7 +22,7 @@ class ScreenOffTimerApp : Application() {
                 }
 
             val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
             notificationManager.createNotificationChannel(channel)
 

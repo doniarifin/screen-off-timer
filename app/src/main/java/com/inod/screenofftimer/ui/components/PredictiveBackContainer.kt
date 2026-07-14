@@ -71,27 +71,23 @@ fun PredictiveBackContainer(
     }
 
     val density = LocalDensity.current
-    val p = FastOutSlowInEasing.transform(animatedProgress.value)
+    val rawP = FastOutSlowInEasing.transform(animatedProgress.value)
+
+    val amplifiedP = (rawP * 8f).coerceIn(0f, 1f)
+    val p = amplifiedP
     val direction = if (swipeEdge == BackEventCompat.EDGE_LEFT) 1f else -1f
 
     Box(Modifier.fillMaxSize()) {
-        val screenWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
-        val peekOffset = screenWidthPx * 0.15f
-        val peekOffsetY = 0f
-
-        val maxTranslateX = with(density) { 24.dp.toPx() }
+        val maxTranslateX = with(density) { 8.dp.toPx() }
         val maxTranslateY = with(density) { 16.dp.toPx()}
 
-        val dampingFactorX = 1f //smoothness
+        val dampingFactorX = 0.1f //smoothness
         val currentTranslationX = lerp(0f, maxTranslateX, p) * dampingFactorX
 
         val touchDeltaY = currentTouchY - startTouchY
-        val dampingFactor = 0.5f // smoothness
+        val dampingFactor = 0.1f // smoothness
         val dampedDeltaY = (touchDeltaY * dampingFactor).coerceIn(-maxTranslateY, maxTranslateY)
         val currentTranslationY = dampedDeltaY * p
-
-        val prevTranslationX = currentTranslationX - peekOffset
-        val prevTranslationY = currentTranslationY - peekOffsetY
 
         val prevScale = lerp(1f, 1f, p)
         val prevAlpha = lerp(0.5f, 1f, p)
@@ -103,11 +99,7 @@ fun PredictiveBackContainer(
                 .graphicsLayer {
                     scaleX = prevScale
                     scaleY = prevScale
-//                    translationX = prevTranslationX
-//                    translationY = prevTranslationY
                     alpha = prevAlpha
-//                    transformOrigin = TransformOrigin(0f, 0.5f)
-//                    shadowElevation = 1f
                 }
         ) {
             previousContent?.invoke()
@@ -120,7 +112,6 @@ fun PredictiveBackContainer(
         )
 
         val currentScale = lerp(1f, 0.9f, p)
-//        val maxTranslateX = with(density) { 8.dp.toPx() }
         val cornerRadius = lerp(0f, 32f, p)
 
         Box(
@@ -131,9 +122,8 @@ fun PredictiveBackContainer(
                     scaleY = currentScale
                     translationX = currentTranslationX * direction
                     translationY = currentTranslationY
-                    shape = RoundedCornerShape(cornerRadius.dp)
+                    shape = RoundedCornerShape(32.dp)
                     clip = true
-//                    shadowElevation = 1f
                 }
         ) {
             currentContent()

@@ -11,7 +11,7 @@
 <!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />-->
 
     <application
-        android:name=".ui.notification.ScreenOffTimerApp"
+        android:name=".ScreenOffTimerApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

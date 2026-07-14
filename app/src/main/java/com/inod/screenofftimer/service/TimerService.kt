@@ -1,6 +1,5 @@
 package com.inod.screenofftimer.service
 
-//noinspection SuspiciousImport
 import android.Manifest
 import android.app.Service
 import android.content.Context
@@ -199,6 +198,8 @@ class TimerService() : Service() {
             } catch (e: Exception) {
                 Log.w("TIMER_SVC", "updateNotification failed: ${e.message}")
             }
+
+            Prefs.saveLeftSeconds(applicationContext, lastDrag)
             sendUpdate(lastDrag)
             Prefs.saveRunning(applicationContext, false)
 
@@ -278,12 +279,14 @@ class TimerService() : Service() {
     private suspend fun onTimerFinished() {
         if (Prefs.isGoHome(applicationContext)) {
             goHome(applicationContext)
-        }
-        if (Prefs.isStopMedia(applicationContext)) {
-            stopMedia(applicationContext)
+            delay(500.milliseconds)
         }
 
-        delay(500.milliseconds)
+        if (Prefs.isStopMedia(applicationContext)) {
+            stopMedia(applicationContext)
+            delay(500.milliseconds)
+        }
+
         if (Prefs.isLockScreen(applicationContext)) {
             lockScreen(applicationContext)
         }

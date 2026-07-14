@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    id("com.mikepenz.aboutlibraries.plugin")
+    alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -17,8 +18,8 @@ android {
         minSdk = 24
         //noinspection OldTargetApi
         targetSdk = 35
-        versionCode = 12
-        versionName = "1.3.7"
+        versionCode = 13
+        versionName = "1.3.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -76,7 +77,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Libraries
-    implementation(libs.aboutlibraries.compose)
+    implementation(libs.aboutlibraries.compose.m3)
 
     // Tests
     testImplementation(libs.junit)

@@ -1,4 +1,4 @@
-package com.inod.screenofftimer.ui.navigation
+package com.inod.screenofftimer.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -27,8 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.inod.screenofftimer.ui.components.BackSource
 import com.inod.screenofftimer.ui.components.PredictiveBackContainer
-import com.inod.screenofftimer.ui.screen.LicenseScreen
 import com.inod.screenofftimer.ui.screen.HomeScreen
+import com.inod.screenofftimer.ui.screen.LibrariesScreen
 import com.inod.screenofftimer.ui.screen.SettingsScreen
 import com.inod.screenofftimer.viewmodel.TimerViewModel
 
@@ -61,7 +61,7 @@ fun AppNavGraph(
 //                    previousRoute = previousRoute,
                     navController = navController
                 )
-                "licenses" -> LicenseScreen(
+                "libraries" -> LibrariesScreen(
                     navController = navController,
                     onBack = { navController.popBackStack() }
                 )
@@ -151,13 +151,13 @@ fun AppNavGraph(
                 }
             }
 
-            composable("licenses") {
+            composable("libraries") {
             PredictiveBackContainer(
                 navController = navController,
                 previousContent = previousRoute?.let { route -> { screenContent(route) } },
                 onDismiss = { navController.popBackStack() }
             ) {
-                LicenseScreen(
+                LibrariesScreen(
                     navController = navController,
                     onBack = { navController.popBackStack() },
                 )
