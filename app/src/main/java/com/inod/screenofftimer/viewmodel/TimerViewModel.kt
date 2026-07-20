@@ -58,6 +58,7 @@ class TimerViewModel(
     var isGoHome by mutableStateOf(state.get<Boolean>("is_go_home") ?: false)
         private set
     var isAutoCloseOnStart by mutableStateOf(state.get<Boolean>("is_auto_close_on_start") ?: false)
+    var isOpenApp by mutableStateOf(state.get<Boolean>("open_app") ?: false)
         private set
     var isDynamicColor by mutableStateOf(state.get<Boolean>("is_dynamic_color") ?: false)
         private set
@@ -127,6 +128,7 @@ class TimerViewModel(
                 isStopMedia = settings.isStopMedia
                 isGoHome = settings.isGoHome
                 isAutoCloseOnStart = settings.isAutoCloseOnStart
+                isOpenApp = settings.openApp
                 isDynamicColor = settings.isDynamicColor
                 isNotifPermission = settings.isNotifPermission
                 isNoShowNotifPermission = settings.isNoShowNotif
@@ -206,6 +208,12 @@ class TimerViewModel(
         isAutoCloseOnStart = value
         state["is_auto_close_on_start"] = value
         Prefs.saveAutoCloseOnStart(context, value)
+    }
+
+    fun updateOpenApp(value: Boolean) {
+        isOpenApp = value
+        state["open_app"] = value
+        Prefs.saveOpenApp(context, value)
     }
 
     fun updateDynamicColor(value: Boolean) {

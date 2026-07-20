@@ -19,10 +19,12 @@ import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Palette
@@ -91,6 +93,9 @@ fun SettingsScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 val enabled = isAccessibilityEnabled(context)
                 if (settings.accessibility != enabled) viewModel.updateAccessibility(enabled)
+
+                //openApp
+                if (!enabled) viewModel.updateOpenApp(false)
 
                 val notifGranted = isNotifGranted(activity)
                 if (settings.isNotifPermission != notifGranted) viewModel.updateNotifPermission(notifGranted)
@@ -246,6 +251,26 @@ fun SettingsScreen(
                             SwitchStyle(
                                 checked = settings.isAutoCloseOnStart,
                                 onCheckedChange = { viewModel.updateAutoCloseOnStart(it) }
+                            )
+                        }
+                    )
+
+                    ListOption(
+                        title = "Open app",
+                        description = "Open this app after timer finished (requires Accessibility)",
+                        icon = Icons.AutoMirrored.Filled.OpenInNew,
+                        onClick = {
+                            val next = !settings.openApp
+                            viewModel.updateOpenApp(next)
+                            if (next && !settings.accessibility) openAccessibility(context)
+                        },
+                        trailing = {
+                            SwitchStyle(
+                                checked = settings.openApp,
+                                onCheckedChange = { next ->
+                                    viewModel.updateOpenApp(next)
+                                    if (next && !settings.accessibility) openAccessibility(context)
+                                }
                             )
                         }
                     )

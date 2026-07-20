@@ -15,6 +15,8 @@ import com.inod.screenofftimer.core.notification.Notifications
 import com.inod.screenofftimer.utils.MediaUtils
 import com.inod.screenofftimer.utils.lockScreenDevice
 import com.inod.screenofftimer.data.Prefs
+import com.inod.screenofftimer.core.permission.AccessibilityPermission
+import com.inod.screenofftimer.service.MediaControlAccessibilityService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -287,6 +289,11 @@ class TimerService() : Service() {
             delay(500.milliseconds)
         }
 
+        if (Prefs.isOpenApp(applicationContext)) {
+            openApp(applicationContext)
+            delay(500.milliseconds)
+        }
+
         if (Prefs.isLockScreen(applicationContext)) {
             lockScreen(applicationContext)
         }
@@ -306,5 +313,17 @@ class TimerService() : Service() {
 
     fun goHome(context: Context) {
         MediaUtils().goToHome(applicationContext)
+    }
+
+    fun openApp(context: Context) {
+        val a11y = MediaControlAccessibilityService.instance
+        if (a11y != null) {
+            // Accessibility aktif -> buka aplikasi via context trusted (kebal BAL).
+            a11y.openApp(applicationContext)
+        } else {
+            // Accessibility belum nyala -> arahkan ke pengaturan accessibility
+            // supaya user bisa mengaktifkannya (syarat fitur ini).
+            AccessibilityPermission.open(applicationContext)
+        }
     }
 }

@@ -2,9 +2,12 @@ package com.inod.screenofftimer.service
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RequiresApi
+import com.inod.screenofftimer.MainActivity
 
 @SuppressLint("AccessibilityPolicy")
 class MediaControlAccessibilityService : AccessibilityService() {
@@ -39,5 +42,12 @@ class MediaControlAccessibilityService : AccessibilityService() {
 
     fun goHomeNow() {
         performGlobalAction(GLOBAL_ACTION_HOME)
+    }
+
+    fun openApp(context: Context) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
     }
 }

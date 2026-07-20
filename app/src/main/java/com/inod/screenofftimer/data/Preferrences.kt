@@ -17,6 +17,7 @@ object Prefs {
     private const val KEY_STOP_MEDIA = "stop_media"
     private const val KEY_GO_HOME = "is_go_home"
     private const val KEY_AUTO_CLOSE_ON_START = "is_auto_close_on_start"
+    private const val KEY_OPEN_APP = "open_app"
     private const val KEY_DYNAMIC_COLOR = "is_dynamic_color"
     private const val KEY_ACCESSIBILITY = "accessibility"
     private const val KEY_DEVICE_ADMIN = "device_admin"
@@ -42,6 +43,7 @@ object Prefs {
         val isStopMedia: Boolean = true,
         val isGoHome: Boolean = false,
         val isAutoCloseOnStart: Boolean = false,
+        val openApp: Boolean = false,
         val isDynamicColor: Boolean = false,
         val isNotifPermission: Boolean = false,
         val isNoShowNotif: Boolean = false,
@@ -74,6 +76,7 @@ object Prefs {
             isStopMedia = all[KEY_STOP_MEDIA] as? Boolean ?: true,
             isGoHome = all[KEY_GO_HOME] as? Boolean ?: false,
             isAutoCloseOnStart = all[KEY_AUTO_CLOSE_ON_START] as? Boolean ?: false,
+            openApp = all[KEY_OPEN_APP] as? Boolean ?: false,
             isDynamicColor = all[KEY_DYNAMIC_COLOR] as? Boolean ?: false,
             isNotifPermission = all[KEY_NOTIF_PERMISSION] as? Boolean ?: false,
             isNoShowNotif = all[KEY_NO_SHOW_ASK_NOTIF] as? Boolean ?: false
@@ -202,6 +205,12 @@ object Prefs {
 
     fun isAutoCloseOnStart(context: Context): Boolean =
         prefs(context).getBoolean(KEY_AUTO_CLOSE_ON_START, false)
+
+    fun saveOpenApp(context: Context, value: Boolean) {
+        prefs(context).edit { putBoolean(KEY_OPEN_APP, value) }
+    }
+
+    fun isOpenApp(context: Context): Boolean = prefs(context).getBoolean(KEY_OPEN_APP, false)
 
     fun saveDynamicColor(context: Context, value: Boolean) {
         prefs(context).edit { putBoolean(KEY_DYNAMIC_COLOR, value) }
