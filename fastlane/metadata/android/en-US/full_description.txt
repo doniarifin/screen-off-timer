@@ -1,4 +1,4 @@
-ScreenOffTimer is a sleep timer for Android. No ads, just a simple, modern tool to help you wind down and protect your device's battery. life.
+ScreenOffTimer is a sleep timer for Android. No ads, just a simple, modern tool to help you wind down and protect your device's battery life.
 
 Features:
 - Media Stop: Automatically stops music and media playback when the timer ends.
