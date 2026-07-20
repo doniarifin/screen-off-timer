@@ -36,4 +36,8 @@ class MediaControlAccessibilityService : AccessibilityService() {
     fun lockScreenNow() {
         performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
     }
+
+    fun goHomeNow() {
+        performGlobalAction(GLOBAL_ACTION_HOME)
+    }
 }
